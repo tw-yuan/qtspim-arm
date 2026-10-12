@@ -50,6 +50,7 @@ bare_pseudo            | -                           | -bare -noexception -file 
 int_arith              | -                           | -ef CPU/exceptions.s -file tests/cases/int_arith.s
 fp_arith               | -                           | -ef CPU/exceptions.s -file tests/cases/fp_arith.s
 fp_host_dependent      | -                           | -ef CPU/exceptions.s -file tests/cases/fp_host_dependent.s
+fp_host_edge           | -                           | -ef CPU/exceptions.s -file tests/cases/fp_host_edge.s
 endian                 | -                           | -ef CPU/exceptions.s -file tests/cases/endian.s
 data_layout            | -                           | -ef CPU/exceptions.s -file tests/cases/data_layout.s
 argv                   | -                           | -ef CPU/exceptions.s -file tests/cases/argv.s

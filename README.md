@@ -30,7 +30,7 @@ every difference from the original.
 | Part | State |
 |---|---|
 | Regression tests against the original SPIM 9.1.24 | done |
-| CMake build, Universal Binary, Qt 6 | done; not yet verified on a Mac |
+| CMake build, Universal Binary, Qt 6 | done; verified on macOS 27 (Apple M3, arm64 and x86_64 under Rosetta) |
 | Identical floating-point results on Apple Silicon and Intel | done |
 | App identity (QtSpim ARM, `net.yuan-tw.qtspim`) | done |
 | Signing, notarization and DMG | planned |
@@ -42,7 +42,7 @@ See [`docs/BUILDING.md`](docs/BUILDING.md). In short:
 
 ```bash
 brew install cmake bison flex ninja
-cmake -B build -G Ninja -DCMAKE_PREFIX_PATH=/path/to/Qt/6.8/macos   # a Universal Qt 6
+cmake -B build -G Ninja -DCMAKE_PREFIX_PATH=/path/to/Qt/6.11.3/macos   # a Universal Qt 6.11
 cmake --build build
 scripts/run-tests.sh build/spim
 ```

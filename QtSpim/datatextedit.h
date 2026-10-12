@@ -31,6 +31,9 @@
    POSSIBILITY OF SUCH DAMAGE.
 */
 
+#ifndef DATATEXTEDIT_H
+#define DATATEXTEDIT_H
+
 #include <QObject>
 #include <QPlainTextEdit>
 
@@ -54,3 +57,5 @@ class dataTextEdit : public QPlainTextEdit {
   void changeValue();
   int addrFromPos(QTextCursor* cursor);
 };
+
+#endif  // DATATEXTEDIT_H

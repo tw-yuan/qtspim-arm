@@ -1,0 +1,93 @@
+Target of jump differs in high-order 4 bits from instruction pc 0x80000258
+Target of jump differs in high-order 4 bits from instruction pc 0x4006fc
+Exception occurred at PC=0x00400040
+  Unaligned address in inst/data fetch: 0x00400001
+Exception occurred at PC=0x00400044
+  Unaligned address in store: 0x00400001
+Exception occurred at PC=0x00400058
+  Bad address in data/stack read: 0x00d89680
+Exception occurred at PC=0x0040005c
+Exception occurred at PC=0x00400068
+  Arithmetic overflow
+Exception occurred at PC=0x00400454
+Exception occurred at PC=0x004005e0
+Exception occurred at PC=0x004006d4
+Exception occurred at PC=0x00400794
+  Bad address in text read: 0x00400796
+Exception occurred at PC=0x004007d4
+  Bad address in text read: 0x004007d6
+Exception occurred at PC=0x00400858
+  Unaligned address in inst/data fetch: 0x800003e7
+Exception occurred at PC=0x0040085c
+  Unaligned address in inst/data fetch: 0x800003eb
+Exception occurred at PC=0x00400860
+  Bad address in data/stack read: 0x800003e8
+Exception occurred at PC=0x00400864
+  Bad address in data/stack read: 0x800003ec
+Exception occurred at PC=0x004008cc
+  Unaligned address in inst/data fetch: 0x800003e7
+Exception occurred at PC=0x004008d0
+  Bad address in data/stack read: 0x800003e8
+Exception occurred at PC=0x00400930
+  Unaligned address in inst/data fetch: 0x800003e7
+Exception occurred at PC=0x00400934
+  Bad address in data/stack read: 0x800003e8
+Exception occurred at PC=0x00400ab4
+  Unaligned address in inst/data fetch: 0x800003e7
+Exception occurred at PC=0x00400ab8
+  Bad address in data/stack read: 0x800003e8
+Exception occurred at PC=0x0040127c
+Exception occurred at PC=0x004013c0
+  Unaligned address in store: 0x800003e7
+Exception occurred at PC=0x004013c4
+  Unaligned address in store: 0x800003eb
+Exception occurred at PC=0x004013c8
+  Bad address in data/stack read: 0x800003e8
+Exception occurred at PC=0x004013cc
+  Bad address in data/stack read: 0x800003ec
+Exception occurred at PC=0x004018b4
+  Arithmetic overflow
+Exception occurred at PC=0x00401994
+  Unaligned address in store: 0x800003e7
+Exception occurred at PC=0x00401998
+  Bad address in data/stack read: 0x800003e8
+Exception occurred at PC=0x00401afc
+  Trap
+Exception occurred at PC=0x00401b14
+  Trap
+Exception occurred at PC=0x00401b34
+  Trap
+Exception occurred at PC=0x00401b38
+  Trap
+Exception occurred at PC=0x00401b54
+  Trap
+Exception occurred at PC=0x00401b58
+  Trap
+Exception occurred at PC=0x00401b78
+  Trap
+Exception occurred at PC=0x00401b7c
+  Trap
+Exception occurred at PC=0x00401ba0
+  Trap
+Exception occurred at PC=0x00401ba4
+  Trap
+Exception occurred at PC=0x00401bb8
+  Reserved instruction execution
+Exception occurred at PC=0x00401bbc
+  Reserved instruction execution
+Exception occurred at PC=0x00401bc0
+  Reserved instruction execution
+Exception occurred at PC=0x00401bc4
+  Reserved instruction execution
+Exception occurred at PC=0x00401be0
+  Trap
+Exception occurred at PC=0x00401c00
+  Trap
+Exception occurred at PC=0x00401c24
+  Trap
+Exception occurred at PC=0x00401c4c
+  Trap
+Exception occurred at PC=0x00401c6c
+  Trap
+Exception occurred at PC=0x00401c84
+  Trap

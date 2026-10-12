@@ -1,0 +1,16 @@
+Testing BC1FL and BC1TL
+Testing BEQ and BEQL
+Testing BGEZ and BGEZL
+Testing BGTZ and BGTZL
+Testing BLEZ and BLEZL
+Testing BLTZ and BLTZL
+Testing BNE and BNEL
+Testing LD
+Testing ABS
+Testing DIV
+Testing MUL
+Testing SLE
+Testing SGE
+Testing SEQ
+
+Passed all tests

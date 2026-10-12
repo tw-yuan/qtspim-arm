@@ -1,0 +1,9 @@
+Loaded: CPU/exceptions.s
+sbrk(0) = 268566528 0x10020000
+sbrk(16) = 268566528 0x10020000
+sbrk(5) = 268566544 0x10020010
+sbrk(0) = 268566552 0x10020018
+sbrk(0x4000) = 268566552 0x10020018
+sbrk(0) = 268582936 0x10024018
+read back from 16-byte block = 305419896 0x12345678
+read back from end of 16 KB block = 195939070 0x0badcafe

@@ -1,0 +1,3 @@
+Exception occurred at PC=0x00400014
+  Arithmetic overflow
+Attempt to execute non-instruction at 0x80000180

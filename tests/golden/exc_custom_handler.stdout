@@ -1,0 +1,7 @@
+Loaded: tests/cases/exc_custom_handler.s
+main started
+custom handler: ExcCode=12 EPC=00400038
+custom handler: ExcCode=9 EPC=0040003c
+custom handler: ExcCode=13 EPC=00400040
+custom handler: ExcCode=7 EPC=00400044
+main finished

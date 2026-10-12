@@ -7,7 +7,8 @@
 - **qtspim-arm**：SPIM / QtSpim（James R. Larus 的 MIPS32 模擬器，BSD 3-Clause）的**非官方 fork**。
 - 目標：macOS 原生 Universal Binary（arm64 + x86_64）、Qt 6、Developer ID 簽章與公證、內建程式編輯器、Apple 風格介面。
 - 上游：SourceForge SVN `https://svn.code.sf.net/p/spimsimulator/code`，本 repo 由 `git svn` 匯入至 r764（9.1.24，2023-08-04）。
-- Repo 目前為**私人**，擁有者 tw-yuan。
+- Repo 目前為**私人**，擁有者 tw-yuan，已決定盡快公開（2026-10-12）。
+- 擁有者已做的決定（Bundle ID、App 名稱、版本號、最低 macOS 等）記在 `docs/PORTING_PLAN.md` 的「擁有者決定紀錄」，照著做，不要再自行更改。
 
 ## 目錄
 
@@ -37,16 +38,20 @@ cd spim && make && make test
 
 `make test` 會印出每個 torture test 的最後兩行，結果應為全部通過。
 
-以下為計畫中的指令，**建立後請更新本節**：
+CMake 建置（PR #2、#3，細節見 `docs/BUILDING.md`）：
 
 ```bash
-cmake -B build -DCMAKE_OSX_ARCHITECTURES="arm64;x86_64"
+cmake -B build -G Ninja -DCMAKE_PREFIX_PATH=<Universal 版 Qt 6>   # macOS 預設 arm64;x86_64
 cmake --build build
-scripts/run-tests.sh build/spim     # 與 tests/golden/ 比對，有差異即失敗
-lipo -info build/QtSpim.app/Contents/MacOS/QtSpim
+scripts/run-tests.sh build/spim     # 與 tests/golden/ 比對，有差異即失敗（或 ctest --test-dir build）
+lipo -info build/spim build/QtSpim.app/Contents/MacOS/QtSpim
 ```
 
-參考實作：`brew install spim` 的 9.1.24 就是用 r764 編譯的，可拿來對照輸出。
+- Homebrew 的 Qt 只有本機架構，做不出 Universal 的 QtSpim。要用 Qt 官方安裝程式或 aqtinstall 的 Qt，否則就加 `-DCMAKE_OSX_ARCHITECTURES=arm64`。
+- 測試一律用 `env -i` 執行 spim（spim 會把環境變數複製到模擬堆疊上），而且不能用 `alarm()` 包裝（spim 用 `ITIMER_REAL` 驅動 CP0 計時器）。見 `tests/README.md`。
+- `fp_host_dependent` 在 arm64 上會失敗（NaN 位元、超出範圍的浮點轉整數），是待擁有者決定的已知差異，**不要改 golden**。
+
+參考實作：`brew install spim` 的 9.1.24 就是用 r764 編譯的，可拿來對照輸出（Apple Silicon 上是 arm64 版，`fp_host_dependent` 會不同）。
 
 ## 硬性規則
 
@@ -69,6 +74,7 @@ lipo -info build/QtSpim.app/Contents/MacOS/QtSpim
 - C/C++ 遵循 repo 根目錄的 `.clang-format`（Google style、`SortIncludes: Never`）。只格式化你修改到的程式碼，不要整檔重排。
 - 新增的介面程式碼放在 `QtSpim/`，以 Qt Widgets 為主，除非擁有者同意，不要改用 Qt Quick/QML 或 SwiftUI。
 - 介面文字目前為英文，新增字串請包在 `tr()` 中以便日後翻譯。
+- `QtSpim/` 等從 SVN 匯入的檔案多為 CRLF 換行，修改時保持原樣（`git diff --stat` 應只顯示改到的行）。
 
 ## 介面與編輯器方向（階段 4、5）
 
@@ -81,6 +87,6 @@ lipo -info build/QtSpim.app/Contents/MacOS/QtSpim
 - 需要修改 `CPU/` 的行為，或測試輸出和原版不一致而找不到原因
 - 要刪除檔案（包括 `QtSpim.pro`、舊打包設定）
 - 要清理歷史中的大檔 `PCSpim/pcspim.sdf`
-- 決定 Bundle ID、App 名稱、版本號、最低支援 macOS 版本
+- 變更已決定的 Bundle ID、App 名稱、版本號規則、最低支援 macOS 版本（見 `docs/PORTING_PLAN.md`）
 - 介面技術路線要偏離 Qt Widgets
 - 需要簽章憑證或 Apple 帳號相關資訊

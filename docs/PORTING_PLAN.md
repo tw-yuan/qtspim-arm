@@ -174,3 +174,26 @@
 
 - 每完成一個階段：開一個 PR，說明做了什麼、驗收結果（附指令輸出）、遇到的問題與未解決事項。
 - 測試若出現和原版不一致的輸出，**不要修改 golden file 讓它通過**，要找出原因並回報。
+
+## 擁有者決定紀錄（2026-10-12）
+
+上方「需要擁有者決定的事項」的決定如下，以及移植過程中另外決定的事項：
+
+| 事項 | 決定 |
+|---|---|
+| 1. 改寫歷史移除 `PCSpim/pcspim.sdf` | **不改寫**（打包後約 16 MiB，r469 起已不在檔案樹中） |
+| 2. 刪除 `QtSpim.pro` | CMake 在 Mac 與 CI 驗證通過、第一版發布後，另開 PR 刪除；`spim/Makefile` **保留** |
+| 3. Bundle ID | `net.yuan-tw.qtspim` |
+| 3. App 顯示名稱 | `QtSpim ARM` |
+| 3. 版本號 | release tag `v9.1.24-arm.N`；`CFBundleShortVersionString` = `9.1.24`；`CFBundleVersion` = 遞增的建置編號（1、2、3…）；命令列版 `spim` 的版本字串（`CPU/version.h`）不動 |
+| 4. 最低 macOS | 依 Qt 6.8 LTS 的需求（macOS 12） |
+| 5. 聯絡原作者 | 擁有者自行處理 |
+| 6. Repo 公開 | 盡快，`README.md` 標示非官方 fork 後即公開 |
+| 7. 編輯器、介面設計稿 | 尚未提交；第一版發布後才開始 |
+| 8. 介面技術路線 | Qt Widgets |
+| 9. 發布策略 | 先發布純移植版（階段 0–3＋簽章、CI、README） |
+| arm64 浮點差異 | 在 `CPU/run.cpp` 做最小修正，所有主機都產生 x86 的結果（無效運算的 NaN、超出範圍的浮點轉整數） |
+| Qt 版本 | 正式版用 Qt 6.8 LTS 的 Universal 版（官方安裝程式或 aqtinstall）；Homebrew 的 Qt 只用於 arm64 開發 |
+| 新檔案的版權行 | `Copyright (c) 2026, qtspim-arm contributors.` |
+| 說明視窗 | 把 Qt Assistant 打包進 app，說明檔路徑改成相對於 app 本身（不再寫死 `/Applications/QtSpim.app`） |
+| `CLAUDE.md`、本文件 | 提交進 repo（本文件原為 `TO_DO.md`） |

@@ -24,24 +24,27 @@ from the original build check this; see [`tests/README.md`](tests/README.md).
 
 ## Status
 
-Work in progress; there is no release yet.
+Work in progress; there is no release yet. [`CHANGES.md`](CHANGES.md) lists
+every difference from the original.
 
 | Part | State |
 |---|---|
 | Regression tests against the original SPIM 9.1.24 | done |
-| CMake build, Universal Binary, Qt 6 | in review |
-| Identical floating-point results on Apple Silicon and Intel | in review |
+| CMake build, Universal Binary, Qt 6 | done; not yet verified on a Mac |
+| Identical floating-point results on Apple Silicon and Intel | done |
+| App identity (QtSpim ARM, `net.yuan-tw.qtspim`) | done |
 | Signing, notarization and DMG | planned |
 | Built-in editor, new interface | planned, after the first release |
 
 ## Building from source
 
-See [`docs/BUILDING.md`](docs/BUILDING.md) once the CMake build is merged.
-Until then, the command-line simulator builds with the upstream Makefile:
+See [`docs/BUILDING.md`](docs/BUILDING.md). In short:
 
 ```bash
-brew install bison flex
-cd spim && make YACC="$(brew --prefix bison)/bin/bison" && make test
+brew install cmake bison flex ninja
+cmake -B build -G Ninja -DCMAKE_PREFIX_PATH=/path/to/Qt/6.8/macos   # a Universal Qt 6
+cmake --build build
+scripts/run-tests.sh build/spim
 ```
 
 ## License

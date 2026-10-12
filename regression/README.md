@@ -52,7 +52,7 @@ programs in `cases/` cover:
 | Floating point | `fp_arith`, `fp_host_dependent`, `fp_host_edge` |
 | Byte order | `endian` |
 | Memory layout and startup state | `data_layout`, `argv`, `argv.extra` |
-| Assembler diagnostics | `parse_errors`, `syntax_error`, `missing_file` |
+| Assembler diagnostics | `parse_errors`, `syntax_error`, `parse_error_at_eof`, `missing_file` |
 | Command line and interactive mode | `usage`, `interactive` |
 
 ## How the golden files were made
@@ -121,6 +121,18 @@ therefore computes these results with `x86_nan_s`, `x86_nan_d` and
 x86). One case is still left to the host: an operation whose two operands are
 both NaN. x86 returns the first operand, but which operand the compiler puts
 first is not fixed, so even different x86 builds may disagree.
+
+## Deliberate differences from the original
+
+The owner approved fixing these; their golden files were recorded with the
+fixed build, because the original's behaviour cannot be recorded:
+
+| Test | Original SPIM 9.1.24 | QtSpim ARM |
+|---|---|---|
+| `parse_error_at_eof` | A syntax error at the very end of a file without a final newline (here `add $t0, $t1`, an operand missing) makes spim loop forever: `erroneous_line()` in `CPU/scanner.l` keeps reading past the end of the input, where flex's `yyinput()` returns 0, not `EOF`. QtSpim hangs the same way. | The error is reported with the usual message, line and caret. |
+
+`scripts/run-tests.sh` on the original build therefore reports
+`parse_error_at_eof` as killed after the timeout.
 
 ## Original SPIM behaviour recorded here
 

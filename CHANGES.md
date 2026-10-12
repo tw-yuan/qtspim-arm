@@ -16,8 +16,10 @@ pass on every build of QtSpim ARM (x86_64 and arm64).
 | NaN produced by an invalid floating-point operation (0/0, inf − inf, 0 × inf, sqrt(−1)) | taken from the host CPU: `0xffc00000` on x86, `0x7fc00000` on a native arm64 build | `0xffc00000` on every host (the x86 result) |
 | Float-to-integer conversion (`cvt.w`, `trunc.w`, `round.w`, `floor.w`, `ceil.w`) of NaN, infinity or a value outside the int32 range | C cast (undefined): `0x80000000` on x86; saturated, and NaN → 0, on a native arm64 build | `0x80000000` on every host (the x86 result) |
 | Everything on x86 | — | unchanged, including the two cases above |
+| A syntax error at the very end of a file that has no final newline (for example `add $t0, $t1` with an operand missing) | spim and QtSpim hang: the scanner loops forever while printing the line | the error is reported as usual and loading stops |
 
-The only change in the simulator core is in `CPU/run.cpp` (the two rows above).
+The only changes in the simulator core are in `CPU/run.cpp` (the two
+floating-point rows) and `CPU/scanner.l` (the last row).
 Behaviour of the original that looks like a bug is kept on purpose; examples
 are listed in [`regression/README.md`](regression/README.md#original-spim-behaviour-recorded-here).
 
@@ -63,12 +65,12 @@ the keys under which recent files are saved.
 
 | | Original 9.1.24 | QtSpim ARM |
 |---|---|---|
-| Tests | six torture tests in `Tests/`; `tt.alu.bare.s` no longer assembles | the same plus 36 more test runs in `regression/`: 42 in all, comparing stdout, stderr and exit status with recordings from the original build, run by `scripts/run-tests.sh` |
+| Tests | six torture tests in `Tests/`; `tt.alu.bare.s` no longer assembles | the same plus 37 more test runs in `regression/`: 43 in all, comparing stdout, stderr and exit status with recordings from the original build (one, for the hang above, recorded with the fixed build), run by `scripts/run-tests.sh` |
 | Documentation | `README`, `Documentation/` | also `README.md`, `CHANGES.md`, `docs/BUILDING.md`, `docs/UI_DESIGN.md`, `regression/README.md` |
 
 ## Not changed
 
 `PCSpim/`, `xspim/`, `Setup/`, `Tests/`, `Documentation/`, `spim/`,
 `CPU/exceptions.s`, the parser and scanner, and every file in `CPU/` other than
-`run.cpp`. The original `README`, `QtSpim/QtSpim.pro` and
+`run.cpp` and `scanner.l`. The original `README`, `QtSpim/QtSpim.pro` and
 `QtSpim/macinfo.plist` are kept as they were.

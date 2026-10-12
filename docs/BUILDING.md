@@ -180,11 +180,12 @@ on Linux (x86_64, and aarch64 under qemu-user) and with Apple clang 21 on macOS
 | Qt | 6.11.3, Universal, installed with aqtinstall 3.3.0 |
 | Rosetta 2 | for testing the x86_64 half |
 
-Regression tests on this machine: the Universal `spim` passes all 42 tests
+Regression tests on this machine: the Universal `spim` passes all 43 tests
 natively (arm64) and as an x86_64-only binary under Rosetta 2
 (`lipo -thin x86_64 -output spim-x86_64 build/spim`). The unmodified r764
-source built for x86_64 also passes all 42 under Rosetta 2; built natively for
-arm64 it fails only `fp_host_dependent` and `fp_host_edge`.
+source built for x86_64 passes all of them under Rosetta 2 except
+`parse_error_at_eof`, where the original hangs (see `regression/README.md`);
+built natively for arm64 it also fails `fp_host_dependent` and `fp_host_edge`.
 
 ## Compiler warnings
 

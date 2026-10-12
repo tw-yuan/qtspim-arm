@@ -57,6 +57,8 @@ argv                   | -                           | -ef CPU/exceptions.s -fil
 argv.extra             | -                           | -ef CPU/exceptions.s -file regression/cases/argv.s one two three
 parse_errors           | -                           | -ef CPU/exceptions.s -file regression/cases/parse_errors.s
 syntax_error           | -                           | -ef CPU/exceptions.s -file regression/cases/syntax_error.s
+# Deliberate difference from the original (it hangs): recorded with the fixed build.
+parse_error_at_eof     | -                           | -ef CPU/exceptions.s -file regression/cases/parse_error_at_eof.s
 missing_file           | -                           | -ef CPU/exceptions.s -file regression/cases/does-not-exist.s
 usage                  | -                           | -no-such-option -ef CPU/exceptions.s
 interactive            | regression/cases/interactive.in  | -ef CPU/exceptions.s

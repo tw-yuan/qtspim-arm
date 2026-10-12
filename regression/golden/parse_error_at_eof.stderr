@@ -1,0 +1,3 @@
+spim: (parser) syntax error on line 45 of file regression/cases/parse_error_at_eof.s
+	  add $t0, $t1
+	              ^

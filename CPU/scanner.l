@@ -554,7 +554,7 @@ erroneous_line ()
 
   /* Print part of line that has been consumed. */
   ss_printf (&ss, "	  ");
-  if (0 <= prefix_length)
+  if (0 <= prefix_length && prefix_length <= (int) strlen (current_line))
     {
       /* yytext and current_line point to same line */
       c = *(current_line + prefix_length);
@@ -574,9 +574,9 @@ erroneous_line ()
   if (*yytext != '\n')
     {
 #ifdef __cplusplus
-      while ((c = yyinput ()) != '\n' && c != EOF && c != 1)
+      while ((c = yyinput ()) != '\n' && c != EOF && c != 0 && c != 1)
 #else
-      while ((c = input ()) != '\n' && c != EOF && c != 1)
+      while ((c = input ()) != '\n' && c != EOF && c != 0 && c != 1)
 #endif
       {
         ss_printf (&ss, "%c", c);

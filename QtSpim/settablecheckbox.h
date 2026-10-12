@@ -31,6 +31,9 @@
    POSSIBILITY OF SUCH DAMAGE.
 */
 
+#ifndef SETTABLECHECKBOX_H
+#define SETTABLECHECKBOX_H
+
 #include <QObject>
 #include <QCheckBox>
 
@@ -44,3 +47,5 @@ class settableCheckBox : public QCheckBox {
   void set() { setChecked(true); }
   void unset() { setChecked(false); }
 };
+
+#endif  // SETTABLECHECKBOX_H

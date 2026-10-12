@@ -222,11 +222,17 @@ void SpimView::InitializeWorld() {
       // Standard exception handler is a resource in this executable. Write it
       // to a temporary file and use that for initialization.
       //
-      QResource exRes(":exceptions.s");
+      // Copy exactly the resource's bytes. QResource::data() is not
+      // NUL-terminated, so writing it as a C string appended whatever
+      // followed it in memory (on macOS, other strings), which made the
+      // handler fail to parse and QtSpim hang at startup.
+      //
+      QFile exRes(":exceptions.s");
       QTemporaryFile tmpFile;
-      tmpFile.open();
-      tmpFile.write((char *)exRes.data());
-      tmpFile.close();
+      if (exRes.open(QIODevice::ReadOnly) && tmpFile.open()) {
+        tmpFile.write(exRes.readAll());
+        tmpFile.close();
+      }
       initialize_world(tmpFile.fileName().toLocal8Bit().data(), false);
     } else {
       // Use the file name supplied by the user.

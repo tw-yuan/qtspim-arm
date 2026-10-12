@@ -49,7 +49,7 @@ programs in `cases/` cover:
 | Delay slots | `delay_branch`, `delay_branch.delayed`, `delay_load`, `delay_load.delayed`, `delay_both.delayed` |
 | Bare machine | `bare`, `bare_pseudo` |
 | Integer instructions and pseudo-instructions | `int_arith` |
-| Floating point | `fp_arith`, `fp_host_dependent` |
+| Floating point | `fp_arith`, `fp_host_dependent`, `fp_host_edge` |
 | Byte order | `endian` |
 | Memory layout and startup state | `data_layout`, `argv`, `argv.extra` |
 | Assembler diagnostics | `parse_errors`, `syntax_error`, `missing_file` |
@@ -73,8 +73,8 @@ They were then checked against other builds of the same unmodified source:
 | Build | Result |
 |---|---|
 | clang 18, x86_64 | all tests pass |
-| GCC 13.3, aarch64 (qemu-user, `-fsigned-char` as on Apple platforms) | all pass except `fp_host_dependent` |
-| clang 18, aarch64 (qemu-user, `-fsigned-char`) | all pass except `fp_host_dependent` (same diff) |
+| GCC 13.3, aarch64 (qemu-user, `-fsigned-char` as on Apple platforms) | all pass except `fp_host_dependent` and `fp_host_edge` |
+| clang 18, aarch64 (qemu-user, `-fsigned-char`) | all pass except `fp_host_dependent` and `fp_host_edge` (same diff) |
 
 `--record` only writes golden files for tests that have none, and it never
 overwrites existing ones.
@@ -95,8 +95,9 @@ overwrites existing ones.
 
 ## Behaviour that depends on the host CPU
 
-`fp_host_dependent` records floating-point results that SPIM takes directly from
-the host FPU and C compiler, using the values of the original x86 build:
+`fp_host_dependent` and `fp_host_edge` record floating-point results that SPIM
+takes directly from the host FPU and C compiler, using the values of the
+original x86 build:
 
 * The NaN produced by an invalid operation (0/0, inf − inf, 0 × inf, sqrt(−1)):
   x86 gives `0xffc00000` / `0xfff8000000000000`, arm64 gives `0x7fc00000` /
@@ -107,10 +108,12 @@ the host FPU and C compiler, using the values of the original x86 build:
   `0x80000000`; arm64 saturates to `0x7fffffff` / `0x80000000` and converts NaN
   to `0`.
 
-A native arm64 build of the unmodified source fails this test. That is a real
-behaviour difference between the arm64 port and the x86 original, not a test
-problem. Fixing it would require a change in `CPU/`, which needs the project
-owner's decision.
+A native arm64 build of the unmodified source fails both tests. `CPU/run.cpp`
+therefore computes these results with `x86_nan_s`, `x86_nan_d` and
+`x86_cvt_w`, which return the x86 values on every host (and change nothing on
+x86). One case is still left to the host: an operation whose two operands are
+both NaN. x86 returns the first operand, but which operand the compiler puts
+first is not fixed, so even different x86 builds may disagree.
 
 ## Original SPIM behaviour recorded here
 

@@ -1,0 +1,2 @@
+Loaded: CPU/exceptions.s
+sbrk(0x100000) succeeded, last word = 1611513583 0x600dbeef

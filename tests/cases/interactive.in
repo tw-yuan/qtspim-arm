@@ -1,0 +1,30 @@
+load "tests/cases/interactive_prog.s"
+print_symbols
+breakpoint main
+breakpoint loop
+list
+run
+step
+step 3
+print $t0
+print $9
+print $f2
+print table
+print 0x10010004
+continue
+print $s0
+continue
+continue
+continue
+delete loop
+list
+continue
+print $s0
+print $f4
+print $t3
+print_all_regs hex
+print_all_regs
+print $0
+. li $t5, 12345
+print $t5
+help

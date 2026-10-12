@@ -1,0 +1,44 @@
+spim: (parser) immediate value (65432) out of range (-32768 .. 32767) on line 414 of file Tests/tt.alu.bare.s
+	  addi $4 $0 0xff98
+
+	                   ^
+spim: (parser) immediate value (65466) out of range (-32768 .. 32767) on line 418 of file Tests/tt.alu.bare.s
+	  addi $4 $0 0xffba
+
+	                   ^
+spim: (parser) immediate value (65500) out of range (-32768 .. 32767) on line 422 of file Tests/tt.alu.bare.s
+	  addi $4 $0 0xffdc
+
+	                   ^
+spim: (parser) immediate value (65534) out of range (-32768 .. 32767) on line 426 of file Tests/tt.alu.bare.s
+	  addi $4 $0 0xfffe
+
+	                   ^
+spim: (parser) immediate value (-1) out of range (0 .. 65535) on line 588 of file Tests/tt.alu.bare.s
+	  lui $2 -1
+
+	           ^
+spim: (parser) immediate value (-1) out of range (0 .. 65535) on line 818 of file Tests/tt.alu.bare.s
+	  ori $4 $3 -1
+
+	              ^
+spim: (parser) Shift distance can only be in the range 0..31 on line 928 of file Tests/tt.alu.bare.s
+	  sll $3 $2 32
+	            ^
+spim: (parser) immediate value (-1) out of range (0 .. 65535) on line 1439 of file Tests/tt.alu.bare.s
+	  ori $3 $0 -1
+
+	              ^
+spim: (parser) immediate value (-1) out of range (0 .. 65535) on line 1443 of file Tests/tt.alu.bare.s
+	  xori $4 $3 -1
+
+	               ^
+spim: (parser) immediate value (-1) out of range (0 .. 65535) on line 1445 of file Tests/tt.alu.bare.s
+	  xori $4 $2 -1
+
+	               ^
+spim: (parser) syntax error on line 1601 of file Tests/tt.alu.bare.s
+	  	ctc3 $2 $3
+	        ^
+Instruction references undefined symbol at 0x00400048
+  [0x00400048]	0x14800000  bne $4, $0, 0 [fail-0x00400048] ; 88: bne $4 $0 fail

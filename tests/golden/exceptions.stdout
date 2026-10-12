@@ -1,0 +1,36 @@
+Loaded: CPU/exceptions.s
+  Exception 12  [Arithmetic overflow]  occurred and ignored
+after add overflow, $t2 = 1 0x00000001
+  Exception 12  [Arithmetic overflow]  occurred and ignored
+after addi overflow, $t2 = 2147483646 0x7ffffffe
+  Exception 12  [Arithmetic overflow]  occurred and ignored
+after sub overflow, $t2 = 3 0x00000003
+  Exception 4  [Address error in inst/data fetch]  occurred and ignored
+after unaligned lw, $t2 = 0 0x00000000
+  Exception 4  [Address error in inst/data fetch]  occurred and ignored
+after unaligned lh, $t2 = 0 0x00000000
+  Exception 5  [Address error in store]  occurred and ignored
+after unaligned sw, word = 287454020 0x11223344
+  Exception 5  [Address error in store]  occurred and ignored
+after unaligned sh, word = 287454020 0x11223344
+  Exception 7  [Bad data address]  occurred and ignored
+after lw from address 0, $t2 = 0 0x00000000
+after lw from 0x7ffffff0 (above stack), $t2 = 1697608549 0x652f7365
+after lw from kernel data in user code, $t2 = 2017796128 0x78452020
+  Exception 9  [Breakpoint]  occurred and ignored
+after break, $t2 = 9 0x00000009
+  Exception 13  [Trap]  occurred and ignored
+after teq, $t2 = 10 0x0000000a
+after tne (not taken), $t2 = 11 0x0000000b
+  Exception 13  [Trap]  occurred and ignored
+after tgei, $t2 = 12 0x0000000c
+  Exception 13  [Trap]  occurred and ignored
+after tltiu, $t2 = 13 0x0000000d
+  Exception 9  [Breakpoint]  occurred and ignored
+after div pseudo-op by zero, $t2 = 0 0x00000000
+  Exception 9  [Breakpoint]  occurred and ignored
+after rem pseudo-op by zero, $t2 = 0 0x00000000
+  Exception 15  [Floating point]  occurred and ignored
+after c.lt.s with NaN, $t2 = 16 0x00000010
+after c.un.s with NaN (quiet compare), $t2 = 17 0x00000011
+done

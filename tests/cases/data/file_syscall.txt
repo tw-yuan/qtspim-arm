@@ -1,0 +1,2 @@
+Line one of the file-syscall fixture.
+Line two.

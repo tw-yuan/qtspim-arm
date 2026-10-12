@@ -1,0 +1,33 @@
+Loaded: CPU/exceptions.s
+Testing LB
+Expect an address error exception:
+	  Exception 7  [Bad data address]  occurred and ignored
+Testing LBU
+Expect an address error exception:
+	  Exception 7  [Bad data address]  occurred and ignored
+Testing LWL
+Expect two address error exceptions:
+  Exception 7  [Bad data address]  occurred and ignored
+  Exception 7  [Bad data address]  occurred and ignored
+Testing LWR
+Expect two address error exceptions:
+  Exception 7  [Bad data address]  occurred and ignored
+  Exception 7  [Bad data address]  occurred and ignored
+Testing SB
+Expect an address error exception:
+	  Exception 7  [Bad data address]  occurred and ignored
+Testing SH
+Expect two address error exceptions:
+  Exception 5  [Address error in store]  occurred and ignored
+  Exception 7  [Bad data address]  occurred and ignored
+Testing SWL
+Testing SWR
+Testing ULH
+Testing ULHU
+Testing ULHU
+Testing ULW
+Testing USH
+Testing USW
+Testing .WORD
+
+Passed all tests

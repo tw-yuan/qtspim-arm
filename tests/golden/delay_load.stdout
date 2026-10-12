@@ -1,0 +1,7 @@
+Loaded: CPU/exceptions.s
+lw then use: 77
+lw then use after one instruction: 77
+lh then use: -3
+lbu then use: 128
+lwc1 then mfc1 (bits): 77
+two loads in a row, use of first: 77

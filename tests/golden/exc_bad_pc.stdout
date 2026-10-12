@@ -1,0 +1,4 @@
+Loaded: CPU/exceptions.s
+jumping to an unaligned address
+  Exception 6  [Bad instruction address]  occurred and ignored
+268500992

@@ -31,13 +31,19 @@
    POSSIBILITY OF SUCH DAMAGE.
 */
 
-#include <stdarg.h>
+#include <cstdarg>
 #include <cstdio>
+#include <cstdlib>
 
-#include "spimview.h"
-#include "ui_spimview.h"
+#include <QApplication>
+#include <QByteArray>
+#include <QMessageBox>
 
-#include <QChar>
+#include "simulator.h"
+
+#include "spim.h"
+#include "string-stream.h"
+#include "spim-utils.h"
 
 // SPIM globals
 //
@@ -54,59 +60,67 @@ int spim_return_value; /* Value returned when spim exits */
 port message_out;
 port console_out;
 
-#define BIG_BUF_SIZE 10000
+// The interface functions the simulator core calls (CPU/spim.h).  They
+// forward everything to the Simulator object (simulator.cpp).
 
-int console_input_available() { return Window->SpimConsole->InputAvailable(); }
+static QByteArray formatMessage(const char *fmt, va_list args) {
+  va_list copy;
+  va_copy(copy, args);
+  const int length = std::vsnprintf(nullptr, 0, fmt, copy);
+  va_end(copy);
+  if (length <= 0) {
+    return QByteArray();
+  }
+  QByteArray buf(length, '\0');
+  std::vsnprintf(buf.data(), static_cast<size_t>(length) + 1, fmt, args);
+  // As in the original QtSpim, output stops at a NUL character (print_char
+  // of 0 prints nothing).
+  const int nul = buf.indexOf('\0');
+  if (nul >= 0) {
+    buf.truncate(nul);
+  }
+  return buf;
+}
+
+int console_input_available() {
+  return Simulator::instance()->coreInputAvailable() ? 1 : 0;
+}
 
 void error(char *fmt, ...) {
   va_list args;
   va_start(args, fmt);
-
-  char buf[BIG_BUF_SIZE];
-  std::vsnprintf(buf, BIG_BUF_SIZE, fmt, args);
+  const QByteArray message = formatMessage(fmt, args);
   va_end(args);
 
-  Window->Error(buf, 0);
+  Simulator::instance()->coreError(QString::fromUtf8(message));
 }
 
 void run_error(char *fmt, ...) {
   va_list args;
   va_start(args, fmt);
-
-  char buf[BIG_BUF_SIZE];
-  std::vsnprintf(buf, BIG_BUF_SIZE, fmt, args);
+  const QByteArray message = formatMessage(fmt, args);
   va_end(args);
 
-  Window->Error(buf, 0);
+  Simulator::instance()->coreRunError(QString::fromUtf8(message));
 }
 
 void fatal_error(char *fmt, ...) {
   va_list args;
   va_start(args, fmt);
-
-  char buf[BIG_BUF_SIZE];
-  std::vsnprintf(buf, BIG_BUF_SIZE, fmt, args);
+  const QByteArray message = formatMessage(fmt, args);
   va_end(args);
 
-  Window->Error(buf, 1);
+  QMessageBox::critical(nullptr, QApplication::applicationDisplayName(),
+                        QString::fromUtf8(message));
+  std::exit(1);
 }
 
 char get_console_char() {
-  QString c = Window->SpimConsole->ReadChar();
-  if (c != "") {
-    char ac = c[0].toLatin1();
-    if (ac == '\r') {
-      return '\n';
-    }
-    return ac;
-  } else {
-    return 0;  // FIXME
-  }
+  return static_cast<char>(Simulator::instance()->coreReadChar());
 }
 
 void put_console_char(char c) {
-  Window->SpimConsole->WriteOutput(QString(c));
-  Window->SpimConsole->raise();
+  Simulator::instance()->coreOutput(true, QByteArray(1, c));
 }
 
 void read_input(char *str, int str_size) {
@@ -130,15 +144,12 @@ void read_input(char *str, int str_size) {
 void write_output(port fp, char *fmt, ...) {
   va_list args;
   va_start(args, fmt);
-
-  char buf[BIG_BUF_SIZE];
-  std::vsnprintf(buf, BIG_BUF_SIZE, fmt, args);
+  const QByteArray text = formatMessage(fmt, args);
   va_end(args);
 
   if (fp.i == message_out.i) {
-    Window->WriteOutput(buf);
+    Simulator::instance()->coreOutput(false, text);
   } else if (fp.i == console_out.i) {
-    Window->SpimConsole->WriteOutput(QString(buf));
-    Window->SpimConsole->raise();
+    Simulator::instance()->coreOutput(true, text);
   }
 }

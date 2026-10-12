@@ -201,6 +201,9 @@ void SpimView::file_Exit() {
         this->SaveStateAndExit(0);
     }
 #endif
+  if (quitCheck && !quitCheck()) {
+    return;
+  }
   this->SaveStateAndExit(0);
 }
 

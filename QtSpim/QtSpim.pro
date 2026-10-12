@@ -38,7 +38,7 @@
 
 cache()
 
-QT       += core widgets printsupport
+QT       += core gui svg widgets printsupport
 
 TARGET = QtSpim
 TEMPLATE = app
@@ -64,7 +64,20 @@ SOURCES += main.cpp\
         ../CPU/string-stream.cpp\
         ../CPU/sym-tbl.cpp\
         ../CPU/syscall.cpp\
-        spim_support.cpp
+        spim_support.cpp\
+        mainwindow.cpp\
+        simulator.cpp\
+        codeeditor.cpp\
+        mipshighlighter.cpp\
+        mipsinfo.cpp\
+        findbar.cpp\
+        consolepanel.cpp\
+        problemspanel.cpp\
+        registerpanel.cpp\
+        memorypanel.cpp\
+        welcomepage.cpp\
+        settingsdialog.cpp\
+        theme.cpp
 
 
 HEADERS  += spimview.h\
@@ -73,7 +86,20 @@ HEADERS  += spimview.h\
         datatextedit.h\
         spim_settings.h\
         settablecheckbox.h\
-        console.h
+        console.h\
+        mainwindow.h\
+        simulator.h\
+        codeeditor.h\
+        mipshighlighter.h\
+        mipsinfo.h\
+        findbar.h\
+        consolepanel.h\
+        problemspanel.h\
+        registerpanel.h\
+        memorypanel.h\
+        welcomepage.h\
+        settingsdialog.h\
+        theme.h
 
 
 FORMS    += spimview.ui\
@@ -88,7 +114,11 @@ FORMS    += spimview.ui\
 INCLUDEPATH = ../CPU ../QtSpim
 
 
-RESOURCES = windows_images.qrc exception.qrc
+RESOURCES = windows_images.qrc exception.qrc qtspimarm.qrc
+
+TRANSLATIONS = translations/qtspim_zh_TW.ts
+CONFIG += lrelease embed_translations
+QM_FILES_RESOURCE_PREFIX = /translations
 
 win32:RC_FILE = qtspim.rc
 

@@ -41,12 +41,34 @@
 	<string>@QTSPIM_APP_NAME@</string>
 	<key>CFBundleExecutable</key>
 	<string>@QTSPIM_APP_NAME@</string>
+	<key>CFBundleDocumentTypes</key>
+	<array>
+		<dict>
+			<key>CFBundleTypeExtensions</key>
+			<array>
+				<string>s</string>
+				<string>as</string>
+				<string>asm</string>
+			</array>
+			<key>CFBundleTypeName</key>
+			<string>MIPS Assembly Source</string>
+			<key>CFBundleTypeRole</key>
+			<string>Editor</string>
+			<key>LSHandlerRank</key>
+			<string>Alternate</string>
+		</dict>
+	</array>
 	<key>CFBundleIconFile</key>
 	<string>NewIcon</string>
 	<key>CFBundleIdentifier</key>
 	<string>@QTSPIM_BUNDLE_ID@</string>
 	<key>CFBundleInfoDictionaryVersion</key>
 	<string>6.0</string>
+	<key>CFBundleLocalizations</key>
+	<array>
+		<string>en</string>
+		<string>zh_TW</string>
+	</array>
 	<key>CFBundleName</key>
 	<string>@QTSPIM_APP_NAME@</string>
 	<key>CFBundlePackageType</key>

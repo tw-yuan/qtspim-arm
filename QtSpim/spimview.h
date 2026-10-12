@@ -39,6 +39,8 @@
 #include <QList>
 #include <QString>
 
+#include <functional>
+
 #include "ui_spimview.h"
 #include "console.h"
 
@@ -88,7 +90,18 @@ class SpimView : public QMainWindow {
 
   void SetOutputColor(QString color);
 
+  // QtSpim ARM: this window is the "classic" interface; the user can switch
+  // to the new one (mainwindow.cpp) and back.
+  void SetSwitchToNewInterface(std::function<void()> callback);
+  void SetQuitCheck(std::function<bool()> check);
+  QString CurrentFile() const;
+  QString ExceptionHandlerFile() const { return st_exceptionHandlerFileName; }
+  bool LoadsExceptionHandler() const { return st_loadExceptionHandler; }
+  static QString ClassicStyleSheet();
+
  private:
+  std::function<bool()> quitCheck;
+
   QString outputColor;
 
   //

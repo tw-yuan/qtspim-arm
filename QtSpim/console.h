@@ -52,17 +52,12 @@ class Console : public QPlainTextEdit {
 
   void Clear();
   bool InputAvailable();
-  QString ReadChar();
   void WriteOutput(QString out);
 
  protected:
   virtual void closeEvent(QCloseEvent* event);
   virtual void hideEvent(QHideEvent* event);
   virtual void showEvent(QShowEvent* event);
-
- private:
-  QString inputBuffer;
-  QEventLoop* l;
 };
 
 #endif  // CONSOLE_H

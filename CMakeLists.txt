@@ -161,7 +161,8 @@ if(NOT SPIM_BUILD_QTSPIM)
   return()
 endif()
 
-find_package(Qt6 6.2 REQUIRED COMPONENTS Core Widgets PrintSupport)
+find_package(Qt6 6.2 REQUIRED COMPONENTS Core Gui Svg Widgets PrintSupport
+  LinguistTools)
 
 # A Universal Binary needs a Universal Qt.  Homebrew's Qt is built for the
 # host architecture only; the Qt online installer provides Universal builds.
@@ -189,6 +190,36 @@ endif()
 
 qt_add_executable(QtSpim WIN32 MACOSX_BUNDLE
   QtSpim/main.cpp
+  QtSpim/spim_support.cpp
+  # The new interface (docs/UI_DESIGN.md).
+  QtSpim/mainwindow.cpp
+  QtSpim/mainwindow.h
+  QtSpim/simulator.cpp
+  QtSpim/simulator.h
+  QtSpim/codeeditor.cpp
+  QtSpim/codeeditor.h
+  QtSpim/mipshighlighter.cpp
+  QtSpim/mipshighlighter.h
+  QtSpim/mipsinfo.cpp
+  QtSpim/mipsinfo.h
+  QtSpim/findbar.cpp
+  QtSpim/findbar.h
+  QtSpim/consolepanel.cpp
+  QtSpim/consolepanel.h
+  QtSpim/problemspanel.cpp
+  QtSpim/problemspanel.h
+  QtSpim/registerpanel.cpp
+  QtSpim/registerpanel.h
+  QtSpim/memorypanel.cpp
+  QtSpim/memorypanel.h
+  QtSpim/welcomepage.cpp
+  QtSpim/welcomepage.h
+  QtSpim/settingsdialog.cpp
+  QtSpim/settingsdialog.h
+  QtSpim/theme.cpp
+  QtSpim/theme.h
+  QtSpim/qtspimarm.qrc
+  # The classic interface (the original QtSpim windows).
   QtSpim/spimview.cpp
   QtSpim/menu.cpp
   QtSpim/regwin.cpp
@@ -196,7 +227,6 @@ qt_add_executable(QtSpim WIN32 MACOSX_BUNDLE
   QtSpim/datawin.cpp
   QtSpim/state.cpp
   QtSpim/console.cpp
-  QtSpim/spim_support.cpp
   QtSpim/spimview.h
   QtSpim/regtextedit.h
   QtSpim/texttextedit.h
@@ -215,6 +245,14 @@ qt_add_executable(QtSpim WIN32 MACOSX_BUNDLE
   QtSpim/exception.qrc
   ${SPIM_CORE_SOURCES})
 
+# Traditional Chinese translation of the interface (docs/UI_DESIGN.md, 6.1).
+# "cmake --build build --target update_translations" updates the .ts file
+# from the sources.
+qt_add_translations(QtSpim
+  TS_FILES QtSpim/translations/qtspim_zh_TW.ts
+  RESOURCE_PREFIX /translations
+  LUPDATE_OPTIONS -no-obsolete -locations none)
+
 set_target_properties(QtSpim PROPERTIES
   AUTOMOC ON
   AUTOUIC ON
@@ -223,7 +261,8 @@ target_include_directories(QtSpim PRIVATE CPU QtSpim ${SPIM_GENERATED_DIR})
 target_compile_definitions(QtSpim PRIVATE
   "QTSPIM_ARM_VERSION=\"${QTSPIM_FULL_VERSION}\"")
 target_compile_options(QtSpim PRIVATE ${SPIM_WARNING_FLAGS})
-target_link_libraries(QtSpim PRIVATE Qt6::Core Qt6::Widgets Qt6::PrintSupport)
+target_link_libraries(QtSpim PRIVATE Qt6::Core Qt6::Gui Qt6::Svg Qt6::Widgets
+  Qt6::PrintSupport)
 
 if(APPLE)
   set_source_files_properties(QtSpim/NewIcon.icns PROPERTIES

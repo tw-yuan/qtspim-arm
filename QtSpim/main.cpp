@@ -30,14 +30,54 @@
    ARISING IN ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE
    POSSIBILITY OF SUCH DAMAGE.
 */
+
 #include <clocale>
+
 #include <QApplication>
+#include <QLibraryInfo>
+#include <QLocale>
+#include <QMessageBox>
+#include <QSettings>
+#include <QTranslator>
+
+#include "mainwindow.h"
+#include "theme.h"
 #include "spimview.h"
 
-static QStringList parseCommandLine(QStringList args);
+static CommandLine parseCommandLine(QStringList args);
 
-SpimView* Window;
+SpimView* Window = nullptr;  // the classic window, once it is shown
 QApplication* App;
+
+// Traditional Chinese when the system (or the setting) asks for it.
+static void installTranslations(QApplication& app) {
+  const QString language =
+      QSettings().value(QStringLiteral("UI/Language")).toString();
+  const QLocale locale =
+      language.isEmpty() ? QLocale::system() : QLocale(language);
+  const bool traditionalChinese =
+      language != QLatin1String("en") &&
+      locale.language() == QLocale::Chinese &&
+      (locale.script() == QLocale::TraditionalChineseScript ||
+       locale.territory() == QLocale::Taiwan ||
+       locale.territory() == QLocale::HongKong ||
+       locale.territory() == QLocale::Macau);
+  if (!traditionalChinese) {
+    return;
+  }
+  auto* ours = new QTranslator(&app);
+  if (ours->load(QStringLiteral(":/translations/qtspim_zh_TW.qm"))) {
+    app.installTranslator(ours);
+  }
+  // Qt's own strings (standard buttons and dialogs).
+  auto* qt = new QTranslator(&app);
+  if (qt->load(QLocale(QLocale::Chinese, QLocale::TraditionalChineseScript,
+                       QLocale::Taiwan),
+               QStringLiteral("qtbase"), QStringLiteral("_"),
+               QLibraryInfo::path(QLibraryInfo::TranslationsPath))) {
+    app.installTranslator(qt);
+  }
+}
 
 int main(int argc, char* argv[]) {
   QApplication a(argc, argv);
@@ -48,83 +88,27 @@ int main(int argc, char* argv[]) {
   QCoreApplication::setOrganizationName("LarusStone");
   QCoreApplication::setOrganizationDomain("larusstone.org");
   QCoreApplication::setApplicationName("QtSpim");
+  QGuiApplication::setApplicationDisplayName(QStringLiteral("QtSpim ARM"));
 
   App = &a;
-  SpimView win;
-  Window = &win;
 
   // Initialize Spim
   //
   message_out.i = 1;
   console_out.i = 2;
 
-  win.SpimConsole->show();
-  win.show();
+  installTranslations(a);
+  Theme::apply(a);
 
-  QStringList fileNames = parseCommandLine(a.arguments());
-
-  win.sim_ReinitializeSimulator();
-
-  for (int i = 0; i < fileNames.length(); i++) {
-    if (fileNames[i] != "") {
-      read_assembly_file(fileNames[i].toLocal8Bit().data());
-    }
-  }
-
-  win.DisplayTextSegments(true);
-  win.UpdateDataDisplay();
-
-  a.setStyleSheet(
-      "  QTabWidget::pane { /* The tab widget frame */"
-      "         border-top: 2px solid #C2C7CB;"
-      "     }"
-      ""
-      "     QTabWidget::tab-bar {"
-      "         left: 5px; /* move to the right by 5px */"
-      "     }"
-      ""
-      "     /* Style the tab using the tab sub-control. Note that"
-      "         it reads QTabBar _not_ QTabWidget */"
-      "     QTabBar::tab {"
-      "         background: qlineargradient(x1: 0, y1: 0, x2: 0, y2: 1,"
-      "                                     stop: 0 #E1E1E1, stop: 0.4 #DDDDDD,"
-      "                                     stop: 0.5 #D8D8D8, stop: 1.0 "
-      "#D3D3D3);"
-      "         border: 2px solid #C4C4C3;"
-      "         border-bottom-color: #C2C7CB; /* same as the pane color */"
-      "         border-top-left-radius: 4px;"
-      "         border-top-right-radius: 4px;"
-#ifdef _WIN32
-      "         min-width: 32ex;"
-      "         padding: 2px;"
-#else
-      "         min-width: 8ex;"
-      "         padding: 2px; padding-left:10px; padding-right:10px;"
-#endif
-      "         font: bold 12px;"
-      "         color: black; /* readable on the light tab background */"
-      "     }"
-      ""
-      "     QTabBar::tab:selected, QTabBar::tab:hover {"
-      "         background: qlineargradient(x1: 0, y1: 0, x2: 0, y2: 1,"
-      "                                     stop: 0 #fafafa, stop: 0.4 #f4f4f4,"
-      "                                     stop: 0.5 #e7e7e7, stop: 1.0 "
-      "#fafafa);"
-      "     }"
-      ""
-      "     QTabBar::tab:selected {"
-      "         border: 2px solid #FF9933;"
-      "         border-bottom-color: #C2C7CB; /* same as pane color */"
-      "     }"
-      ""
-      "     QTabBar::tab:!selected {"
-      "         margin-top: 2px; /* make non-selected tabs look smaller */"
-      "     }");
+  MainWindow win;
+  const CommandLine commandLine = parseCommandLine(a.arguments());
+  win.start(commandLine);
 
   return a.exec();
 }
 
-static QStringList parseCommandLine(QStringList args) {
+static CommandLine parseCommandLine(QStringList args) {
+  CommandLine result;
   for (int i = 1; i < args.length(); i++) {
 #ifdef WIN32
     if (args[i][0] == '/') {
@@ -144,12 +128,20 @@ static QStringList parseCommandLine(QStringList args) {
       delayed_branches = true;
     } else if ((args[i] == "-delayed_loads") || (args[i] == "-dl")) {
       delayed_loads = true;
-    } else if ((args[i] == "-exception") || (args[i] == "-e")) {
-      Window->SetExceptionHandler("", true);
-    } else if ((args[i] == "-noexception") || (args[i] == "-ne")) {
-      Window->SetExceptionHandler("", false);
-    } else if ((args[i] == "-exception_file") || (args[i] == "-ef")) {
-      Window->SetExceptionHandler(args[++i], true);
+    } else if ((args[i] == "-exception") || (args[i] == "-e") ||
+               (args[i] == "-trap") || (args[i] == "-t")) {
+      result.setHandler = true;
+      result.loadHandler = true;
+    } else if ((args[i] == "-noexception") || (args[i] == "-ne") ||
+               (args[i] == "-notrap") || (args[i] == "-nt")) {
+      result.setHandler = true;
+      result.loadHandler = false;
+    } else if (((args[i] == "-exception_file") || (args[i] == "-ef") ||
+                (args[i] == "-trap_file") || (args[i] == "-tf")) &&
+               i + 1 < args.length()) {
+      result.setHandler = true;
+      result.loadHandler = true;
+      result.handlerFile = args[++i];
     } else if ((args[i] == "-mapped_io") || (args[i] == "-mio")) {
       mapped_io = true;
     } else if ((args[i] == "-nomapped_io") || (args[i] == "-nmio")) {
@@ -162,52 +154,63 @@ static QStringList parseCommandLine(QStringList args) {
       quiet = true;
     } else if ((args[i] == "-noquiet") || (args[i] == "-nq")) {
       quiet = false;
-    } else if ((args[i] == "-trap") || (args[i] == "-t")) {
-      Window->SetExceptionHandler("", true);
-    } else if ((args[i] == "-notrap") || (args[i] == "-nt")) {
-      Window->SetExceptionHandler("", false);
-    } else if ((args[i] == "-trap_file") || (args[i] == "-tf")) {
-      Window->SetExceptionHandler(args[++i], true);
-    } else if ((args[i] == "-stext") || (args[i] == "-st")) {
+    } else if (((args[i] == "-stext") || (args[i] == "-st")) &&
+               i + 1 < args.length()) {
       initial_text_size = args[++i].toInt();
-    } else if ((args[i] == "-sdata") || (args[i] == "-sd")) {
+    } else if (((args[i] == "-sdata") || (args[i] == "-sd")) &&
+               i + 1 < args.length()) {
       initial_data_size = args[++i].toInt();
-    } else if ((args[i] == "-ldata") || (args[i] == "-ld")) {
+    } else if (((args[i] == "-ldata") || (args[i] == "-ld")) &&
+               i + 1 < args.length()) {
       initial_data_limit = args[++i].toInt();
-    } else if ((args[i] == "-sstack") || (args[i] == "-ss")) {
+    } else if (((args[i] == "-sstack") || (args[i] == "-ss")) &&
+               i + 1 < args.length()) {
       initial_stack_size = args[++i].toInt();
-    } else if ((args[i] == "-lstack") || (args[i] == "-ls")) {
+    } else if (((args[i] == "-lstack") || (args[i] == "-ls")) &&
+               i + 1 < args.length()) {
       initial_stack_limit = args[++i].toInt();
-    } else if ((args[i] == "-sktext") || (args[i] == "-skt")) {
+    } else if (((args[i] == "-sktext") || (args[i] == "-skt")) &&
+               i + 1 < args.length()) {
       initial_k_text_size = args[++i].toInt();
-    } else if ((args[i] == "-skdata") || (args[i] == "-skd")) {
+    } else if (((args[i] == "-skdata") || (args[i] == "-skd")) &&
+               i + 1 < args.length()) {
       initial_k_data_size = args[++i].toInt();
-    } else if ((args[i] == "-lkdata") || (args[i] == "-lkd")) {
+    } else if (((args[i] == "-lkdata") || (args[i] == "-lkd")) &&
+               i + 1 < args.length()) {
       initial_k_data_limit = args[++i].toInt();
     } else if ((args[i] == "-file") || (args[i] == "-f")) {
-      return args.mid(i + 1);
+      result.files = args.mid(i + 1);
+      return result;
+    } else if (args[i].startsWith("-psn_")) {
+      // Process serial number that older macOS versions pass to apps.
     } else if (args[i][0] != '-') {
-      return args.mid(i);
+      result.files = args.mid(i);
+      return result;
     } else {
-      error(
-          "Unknown argument: %s (ignored)\n\n\
-        Usage: QtSpim\n\
-	-bare			Bare machine (no pseudo-ops, delayed branches and loads)\n\
-	-asm			Extended machine (pseudo-ops, no delayed branches and loads) (default)\n\
-	-delayed_branches	Execute delayed branches\n\
-	-delayed_loads		Execute delayed loads\n\
-	-exception		Load exception handler (default)\n\
-	-noexception		Do not load exception handler\n\
-	-exception_file <file>	Specify exception handler in place of default\n\
-	-quiet			Do not print warnings\n\
-	-noquiet		Print warnings (default)\n\
-	-mapped_io		Enable memory-mapped IO\n\
-	-nomapped_io		Do not enable memory-mapped IO (default)\n\
-	-file <file> ...	Assembly code file(s)\n\
-	\n\
-	If argument does not start with a '-', it and all subsequent arguments are file names.\n",
-          args[i].toLocal8Bit().data());
+      QMessageBox::information(
+          nullptr, QStringLiteral("QtSpim ARM"),
+          QString("Unknown argument: %1 (ignored)\n\n"
+                  "Usage: QtSpim\n"
+                  "\t-bare\t\t\tBare machine (no pseudo-ops, delayed branches "
+                  "and loads)\n"
+                  "\t-asm\t\t\tExtended machine (pseudo-ops, no delayed "
+                  "branches and loads) (default)\n"
+                  "\t-delayed_branches\tExecute delayed branches\n"
+                  "\t-delayed_loads\t\tExecute delayed loads\n"
+                  "\t-exception\t\tLoad exception handler (default)\n"
+                  "\t-noexception\t\tDo not load exception handler\n"
+                  "\t-exception_file <file>\tSpecify exception handler in "
+                  "place of default\n"
+                  "\t-quiet\t\t\tDo not print warnings\n"
+                  "\t-noquiet\t\tPrint warnings (default)\n"
+                  "\t-mapped_io\t\tEnable memory-mapped IO\n"
+                  "\t-nomapped_io\t\tDo not enable memory-mapped IO (default)\n"
+                  "\t-file <file> ...\tAssembly code file(s)\n"
+                  "\t\n"
+                  "\tIf argument does not start with a '-', it and all "
+                  "subsequent arguments are file names.\n")
+              .arg(args[i]));
     }
   }
-  return QStringList();
+  return result;
 }

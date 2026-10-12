@@ -40,6 +40,8 @@
 #include <QResource>
 #include <QTemporaryFile>
 
+#include "simulator.h"
+
 SpimView::SpimView(QWidget *parent)
     : QMainWindow(parent),
       ui(new Ui::SpimView),
@@ -79,11 +81,108 @@ SpimView::SpimView(QWidget *parent)
   ui->action_Win_Console->setChecked(true);
 
   programStatus = IDLE;
+
+  // The simulator core reaches this window through the Simulator object
+  // (spim_support.cpp), which is shared with the new interface.
+  Simulator *sim = Simulator::instance();
+  connect(sim, &Simulator::consoleOutput, this, [this](const QString &text) {
+    if (Simulator::instance()->classicMode()) {
+      SpimConsole->WriteOutput(text);
+      SpimConsole->raise();
+    }
+  });
+  connect(sim, &Simulator::simulatorMessage, this,
+          [this](const QString &text, bool error) {
+            if (!Simulator::instance()->classicMode()) {
+              return;
+            }
+            if (error) {
+              Error(text, false);
+            } else {
+              WriteOutput(text);
+            }
+          });
+  connect(sim, &Simulator::inputRequested, this, [this] {
+    if (Simulator::instance()->classicMode()) {
+      SpimConsole->activateWindow();
+    }
+  });
 }
 
-void SpimView::closeEvent(QCloseEvent *) {
+void SpimView::closeEvent(QCloseEvent *event) {
+  if (quitCheck && !quitCheck()) {
+    event->ignore();
+    return;
+  }
   writeSettings(false);
   qApp->exit(0);
+}
+
+void SpimView::SetSwitchToNewInterface(std::function<void()> callback) {
+  QAction *action = new QAction(tr("Switch to New Interface"), this);
+  action->setToolTip(tr("Switch to the new QtSpim ARM interface"));
+  QObject::connect(action, &QAction::triggered, this, callback);
+  ui->menu_Window->addSeparator();
+  ui->menu_Window->addAction(action);
+  ui->toolBar->addSeparator();
+  ui->toolBar->addAction(action);
+}
+
+void SpimView::SetQuitCheck(std::function<bool()> check) { quitCheck = check; }
+
+QString SpimView::CurrentFile() const {
+  return st_recentFiles.isEmpty() ? QString() : st_recentFiles[0];
+}
+
+// The style the original main.cpp set for the whole application, now only
+// for this window: the tabs of the docked windows.
+QString SpimView::ClassicStyleSheet() {
+  return QString(
+      "  QTabWidget::pane { /* The tab widget frame */"
+      "         border-top: 2px solid #C2C7CB;"
+      "     }"
+      ""
+      "     QTabWidget::tab-bar {"
+      "         left: 5px; /* move to the right by 5px */"
+      "     }"
+      ""
+      "     /* Style the tab using the tab sub-control. Note that"
+      "         it reads QTabBar _not_ QTabWidget */"
+      "     QTabBar::tab {"
+      "         background: qlineargradient(x1: 0, y1: 0, x2: 0, y2: 1,"
+      "                                     stop: 0 #E1E1E1, stop: 0.4 #DDDDDD,"
+      "                                     stop: 0.5 #D8D8D8, stop: 1.0 "
+      "#D3D3D3);"
+      "         border: 2px solid #C4C4C3;"
+      "         border-bottom-color: #C2C7CB; /* same as the pane color */"
+      "         border-top-left-radius: 4px;"
+      "         border-top-right-radius: 4px;"
+#ifdef _WIN32
+      "         min-width: 32ex;"
+      "         padding: 2px;"
+#else
+      "         min-width: 8ex;"
+      "         padding: 2px; padding-left:10px; padding-right:10px;"
+#endif
+      "         font: bold 12px;"
+      "         color: black; /* readable on the light tab background */"
+      "     }"
+      ""
+      "     QTabBar::tab:selected, QTabBar::tab:hover {"
+      "         background: qlineargradient(x1: 0, y1: 0, x2: 0, y2: 1,"
+      "                                     stop: 0 #fafafa, stop: 0.4 #f4f4f4,"
+      "                                     stop: 0.5 #e7e7e7, stop: 1.0 "
+      "#fafafa);"
+      "     }"
+      ""
+      "     QTabBar::tab:selected {"
+      "         border: 2px solid #FF9933;"
+      "         border-bottom-color: #C2C7CB; /* same as pane color */"
+      "     }"
+      ""
+      "     QTabBar::tab:!selected {"
+      "         margin-top: 2px; /* make non-selected tabs look smaller */"
+      "     }");
 }
 
 void SpimView::wireCommands() {

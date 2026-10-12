@@ -1,0 +1,98 @@
+<!DOCTYPE RCC>
+<!--
+   SPIM S20 MIPS simulator.
+   Resources of the new QtSpim ARM interface: Lucide icons (ISC license,
+   see icons/LICENSE) and the example programs.
+
+   Copyright (c) 2026, qtspim-arm contributors.
+   All rights reserved.
+
+   Redistribution and use in source and binary forms, with or without
+   modification, are permitted provided that the following conditions are met:
+
+   Redistributions of source code must retain the above copyright notice,
+   this list of conditions and the following disclaimer.
+
+   Redistributions in binary form must reproduce the above copyright notice,
+   this list of conditions and the following disclaimer in the documentation
+   and/or other materials provided with the distribution.
+
+   Neither the name of the James R. Larus nor the names of its contributors may
+   be used to endorse or promote products derived from this software without
+   specific prior written permission.
+
+   THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS "AS IS"
+   AND ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT LIMITED TO, THE
+   IMPLIED WARRANTIES OF MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE
+   ARE DISCLAIMED. IN NO EVENT SHALL THE COPYRIGHT HOLDER OR CONTRIBUTORS BE
+   LIABLE FOR ANY DIRECT, INDIRECT, INCIDENTAL, SPECIAL, EXEMPLARY, OR
+   CONSEQUENTIAL DAMAGES (INCLUDING, BUT NOT LIMITED TO, PROCUREMENT OF
+   SUBSTITUTE GOODS OR SERVICES; LOSS OF USE, DATA, OR PROFITS; OR BUSINESS
+   INTERRUPTION) HOWEVER CAUSED AND ON ANY THEORY OF LIABILITY, WHETHER IN
+   CONTRACT, STRICT LIABILITY, OR TORT (INCLUDING NEGLIGENCE OR OTHERWISE)
+   ARISING IN ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE
+   POSSIBILITY OF SUCH DAMAGE.
+-->
+<RCC version="1.0">
+ <qresource prefix="/icons">
+  <file alias="arrow-down-to-line.svg">icons/arrow-down-to-line.svg</file>
+  <file alias="arrow-right.svg">icons/arrow-right.svg</file>
+  <file alias="book-open.svg">icons/book-open.svg</file>
+  <file alias="case-sensitive.svg">icons/case-sensitive.svg</file>
+  <file alias="check.svg">icons/check.svg</file>
+  <file alias="chevron-down.svg">icons/chevron-down.svg</file>
+  <file alias="chevron-right.svg">icons/chevron-right.svg</file>
+  <file alias="chevron-up.svg">icons/chevron-up.svg</file>
+  <file alias="circle-alert.svg">icons/circle-alert.svg</file>
+  <file alias="circle-check.svg">icons/circle-check.svg</file>
+  <file alias="circle-dot.svg">icons/circle-dot.svg</file>
+  <file alias="circle-help.svg">icons/circle-help.svg</file>
+  <file alias="circle-pause.svg">icons/circle-pause.svg</file>
+  <file alias="circle-stop.svg">icons/circle-stop.svg</file>
+  <file alias="circle-x.svg">icons/circle-x.svg</file>
+  <file alias="clock.svg">icons/clock.svg</file>
+  <file alias="corner-down-left.svg">icons/corner-down-left.svg</file>
+  <file alias="cpu.svg">icons/cpu.svg</file>
+  <file alias="download.svg">icons/download.svg</file>
+  <file alias="eraser.svg">icons/eraser.svg</file>
+  <file alias="file-code.svg">icons/file-code.svg</file>
+  <file alias="file-plus.svg">icons/file-plus.svg</file>
+  <file alias="file-text.svg">icons/file-text.svg</file>
+  <file alias="folder-open.svg">icons/folder-open.svg</file>
+  <file alias="folder.svg">icons/folder.svg</file>
+  <file alias="graduation-cap.svg">icons/graduation-cap.svg</file>
+  <file alias="hammer.svg">icons/hammer.svg</file>
+  <file alias="history.svg">icons/history.svg</file>
+  <file alias="info.svg">icons/info.svg</file>
+  <file alias="keyboard.svg">icons/keyboard.svg</file>
+  <file alias="layers.svg">icons/layers.svg</file>
+  <file alias="lightbulb.svg">icons/lightbulb.svg</file>
+  <file alias="list-ordered.svg">icons/list-ordered.svg</file>
+  <file alias="list-x.svg">icons/list-x.svg</file>
+  <file alias="panel-bottom.svg">icons/panel-bottom.svg</file>
+  <file alias="panel-right.svg">icons/panel-right.svg</file>
+  <file alias="pause.svg">icons/pause.svg</file>
+  <file alias="play.svg">icons/play.svg</file>
+  <file alias="printer.svg">icons/printer.svg</file>
+  <file alias="repeat.svg">icons/repeat.svg</file>
+  <file alias="replace-all.svg">icons/replace-all.svg</file>
+  <file alias="replace.svg">icons/replace.svg</file>
+  <file alias="rotate-ccw.svg">icons/rotate-ccw.svg</file>
+  <file alias="save.svg">icons/save.svg</file>
+  <file alias="search.svg">icons/search.svg</file>
+  <file alias="sliders-horizontal.svg">icons/sliders-horizontal.svg</file>
+  <file alias="square.svg">icons/square.svg</file>
+  <file alias="step-forward.svg">icons/step-forward.svg</file>
+  <file alias="table-2.svg">icons/table-2.svg</file>
+  <file alias="terminal.svg">icons/terminal.svg</file>
+  <file alias="trash-2.svg">icons/trash-2.svg</file>
+  <file alias="triangle-alert.svg">icons/triangle-alert.svg</file>
+  <file alias="x.svg">icons/x.svg</file>
+ </qresource>
+ <qresource prefix="/examples">
+  <file alias="add.s">examples/add.s</file>
+  <file alias="factorial.s">examples/factorial.s</file>
+  <file alias="hello.s">examples/hello.s</file>
+  <file alias="sum.s">examples/sum.s</file>
+ </qresource>
+</RCC>

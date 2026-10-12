@@ -32,6 +32,7 @@
 */
 
 #include "spimview.h"
+#include "simulator.h"
 
 Console::Console(QWidget* parent) : QPlainTextEdit(parent) {
   setWindowTitle("Console");
@@ -51,34 +52,16 @@ void Console::WriteOutput(QString out) {
   ensureCursorVisible();
 }
 
-QString Console::ReadChar() {
-  if (l->isRunning())  // Not re-enterent
-  {
-    return QString("\n");
-  } else {
-    activateWindow();
-    while (1) {
-      if (InputAvailable()) {
-        QString firstChar = inputBuffer.left(1);
-        inputBuffer.remove(0, 1);
-        return firstChar;
-      }
-      // This is a bit tricky and I hope it works on all platforms. If there
-      // aren't any characters in the buffer, start a new event loop to wait for
-      // keystrokes and block on it. Cannot use semaphores or busy-wait since
-      // both actions are on the same thread.
-      //
-      l->exec();
-    }
-  }
+// Typed characters go to the Simulator object, which hands them to the
+// program (get_console_char in spim_support.cpp waits for them in a nested
+// event loop, as this class used to).
+bool Console::InputAvailable() {
+  return Simulator::instance()->coreInputAvailable();
 }
-
-bool Console::InputAvailable() { return inputBuffer.length() > 0; }
 
 void Console::Clear() {
   setPlainText("");
-  inputBuffer = QString("");
-  l = new QEventLoop();
+  Simulator::instance()->clearInput();
 }
 
 void Console::keyPressEvent(QKeyEvent* /*e*/) {
@@ -89,14 +72,13 @@ void Console::keyReleaseEvent(QKeyEvent* e) {
   QString key = e->text();
 
   if (key != "") {
-    inputBuffer.append(key);
     if (!mapped_io) {
       WriteOutput(key);  // Do not echo input when using mem mapped IO
     }
 
-    // Release the call on ReadChar (if any) that is blocked waiting for input.
+    // Release the read (if any) that is blocked waiting for input.
     //
-    l->exit();
+    Simulator::instance()->provideInput(key);
   }
 }
 

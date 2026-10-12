@@ -88,6 +88,41 @@ static void unsigned_multiply(reg_word v1, reg_word v2);
 #define ARITH_OVFL(RESULT, OP1, OP2) \
   (SIGN_BIT(OP1) == SIGN_BIT(OP2) && SIGN_BIT(OP1) != SIGN_BIT(RESULT))
 
+/* Some floating-point results come from the host processor and differ
+   between x86 and ARM.  These functions return the x86 result on every
+   host, so that a native ARM build behaves like the x86 builds of SPIM:
+
+   - An invalid operation (0/0, inf - inf, 0 * inf, sqrt(-1)) produces the
+     default NaN, which has the sign bit set on x86 (0xffc00000 and
+     0xfff8000000000000) but not on ARM.  NaN operands are propagated the
+     same way on both.
+
+   - Converting a NaN, an infinity or a value outside the int32 range to
+     int32 gives 0x80000000 on x86.  ARM saturates instead and converts NaN
+     to 0. */
+
+static float x86_nan_s(float result, float op1, float op2) {
+  if (NaN(result) && !NaN(op1) && !NaN(op2)) {
+    uint32 bits = 0xffc00000;
+    memcpy(&result, &bits, sizeof(result));
+  }
+  return result;
+}
+
+static double x86_nan_d(double result, double op1, double op2) {
+  if (NaN(result) && !NaN(op1) && !NaN(op2)) {
+    unsigned long long bits = 0xfff8000000000000ULL;
+    memcpy(&result, &bits, sizeof(result));
+  }
+  return result;
+}
+
+static int32 x86_cvt_w(double value) {
+  if (NaN(value) || value <= -2147483649.0 || value >= 2147483648.0)
+    return (int32)0x80000000;
+  return (int32)value;
+}
+
 /* True when delayed_branches is true and instruction is executing in delay
 slot of another instruction. */
 static int running_in_delay_slot = 0;
@@ -1073,15 +1108,19 @@ bool run_spim(mem_addr initial_PC, int steps_to_run, bool display) {
           SET_FPR_D(FD(inst), fabs(FPR_D(FS(inst))));
           break;
 
-        case Y_ADD_S_OP:
-          SET_FPR_S(FD(inst), FPR_S(FS(inst)) + FPR_S(FT(inst)));
+        case Y_ADD_S_OP: {
+          float v1 = FPR_S(FS(inst)), v2 = FPR_S(FT(inst));
+          SET_FPR_S(FD(inst), x86_nan_s(v1 + v2, v1, v2));
           /* Should trap on inexact/overflow/underflow */
           break;
+        }
 
-        case Y_ADD_D_OP:
-          SET_FPR_D(FD(inst), FPR_D(FS(inst)) + FPR_D(FT(inst)));
+        case Y_ADD_D_OP: {
+          double v1 = FPR_D(FS(inst)), v2 = FPR_D(FT(inst));
+          SET_FPR_D(FD(inst), x86_nan_d(v1 + v2, v1, v2));
           /* Should trap on inexact/overflow/underflow */
           break;
+        }
 
         case Y_BC1F_OP:
         case Y_BC1FL_OP:
@@ -1174,14 +1213,14 @@ bool run_spim(mem_addr initial_PC, int steps_to_run, bool display) {
         case Y_CEIL_W_D_OP: {
           double val = FPR_D(FS(inst));
 
-          SET_FPR_W(FD(inst), (int32)ceil(val));
+          SET_FPR_W(FD(inst), x86_cvt_w(ceil(val)));
           break;
         }
 
         case Y_CEIL_W_S_OP: {
           double val = (double)FPR_S(FS(inst));
 
-          SET_FPR_W(FD(inst), (int32)ceil(val));
+          SET_FPR_W(FD(inst), x86_cvt_w(ceil(val)));
           break;
         }
 
@@ -1214,38 +1253,42 @@ bool run_spim(mem_addr initial_PC, int steps_to_run, bool display) {
         }
 
         case Y_CVT_W_D_OP: {
-          int val = (int32)FPR_D(FS(inst));
+          int val = x86_cvt_w(FPR_D(FS(inst)));
 
           SET_FPR_W(FD(inst), val);
           break;
         }
 
         case Y_CVT_W_S_OP: {
-          int val = (int32)FPR_S(FS(inst));
+          int val = x86_cvt_w(FPR_S(FS(inst)));
 
           SET_FPR_W(FD(inst), val);
           break;
         }
 
-        case Y_DIV_S_OP:
-          SET_FPR_S(FD(inst), FPR_S(FS(inst)) / FPR_S(FT(inst)));
+        case Y_DIV_S_OP: {
+          float v1 = FPR_S(FS(inst)), v2 = FPR_S(FT(inst));
+          SET_FPR_S(FD(inst), x86_nan_s(v1 / v2, v1, v2));
           break;
+        }
 
-        case Y_DIV_D_OP:
-          SET_FPR_D(FD(inst), FPR_D(FS(inst)) / FPR_D(FT(inst)));
+        case Y_DIV_D_OP: {
+          double v1 = FPR_D(FS(inst)), v2 = FPR_D(FT(inst));
+          SET_FPR_D(FD(inst), x86_nan_d(v1 / v2, v1, v2));
           break;
+        }
 
         case Y_FLOOR_W_D_OP: {
           double val = FPR_D(FS(inst));
 
-          SET_FPR_W(FD(inst), (int32)floor(val));
+          SET_FPR_W(FD(inst), x86_cvt_w(floor(val)));
           break;
         }
 
         case Y_FLOOR_W_S_OP: {
           double val = (double)FPR_S(FS(inst));
 
-          SET_FPR_W(FD(inst), (int32)floor(val));
+          SET_FPR_W(FD(inst), x86_cvt_w(floor(val)));
           break;
         }
 
@@ -1346,13 +1389,17 @@ bool run_spim(mem_addr initial_PC, int steps_to_run, bool display) {
           break;
         }
 
-        case Y_MUL_S_OP:
-          SET_FPR_S(FD(inst), FPR_S(FS(inst)) * FPR_S(FT(inst)));
+        case Y_MUL_S_OP: {
+          float v1 = FPR_S(FS(inst)), v2 = FPR_S(FT(inst));
+          SET_FPR_S(FD(inst), x86_nan_s(v1 * v2, v1, v2));
           break;
+        }
 
-        case Y_MUL_D_OP:
-          SET_FPR_D(FD(inst), FPR_D(FS(inst)) * FPR_D(FT(inst)));
+        case Y_MUL_D_OP: {
+          double v1 = FPR_D(FS(inst)), v2 = FPR_D(FT(inst));
+          SET_FPR_D(FD(inst), x86_nan_d(v1 * v2, v1, v2));
           break;
+        }
 
         case Y_NEG_S_OP:
           SET_FPR_S(FD(inst), -FPR_S(FS(inst)));
@@ -1365,14 +1412,14 @@ bool run_spim(mem_addr initial_PC, int steps_to_run, bool display) {
         case Y_ROUND_W_D_OP: {
           double val = FPR_D(FS(inst));
 
-          SET_FPR_W(FD(inst), (int32)(val + 0.5)); /* Casting truncates */
+          SET_FPR_W(FD(inst), x86_cvt_w(val + 0.5)); /* Truncates */
           break;
         }
 
         case Y_ROUND_W_S_OP: {
           double val = (double)FPR_S(FS(inst));
 
-          SET_FPR_W(FD(inst), (int32)(val + 0.5)); /* Casting truncates */
+          SET_FPR_W(FD(inst), x86_cvt_w(val + 0.5)); /* Truncates */
           break;
         }
 
@@ -1388,21 +1435,29 @@ bool run_spim(mem_addr initial_PC, int steps_to_run, bool display) {
           break;
         }
 
-        case Y_SQRT_D_OP:
-          SET_FPR_D(FD(inst), sqrt(FPR_D(FS(inst))));
+        case Y_SQRT_D_OP: {
+          double v = FPR_D(FS(inst));
+          SET_FPR_D(FD(inst), x86_nan_d(sqrt(v), v, v));
           break;
+        }
 
-        case Y_SQRT_S_OP:
-          SET_FPR_S(FD(inst), sqrt(FPR_S(FS(inst))));
+        case Y_SQRT_S_OP: {
+          float v = FPR_S(FS(inst));
+          SET_FPR_S(FD(inst), x86_nan_s(sqrt(v), v, v));
           break;
+        }
 
-        case Y_SUB_S_OP:
-          SET_FPR_S(FD(inst), FPR_S(FS(inst)) - FPR_S(FT(inst)));
+        case Y_SUB_S_OP: {
+          float v1 = FPR_S(FS(inst)), v2 = FPR_S(FT(inst));
+          SET_FPR_S(FD(inst), x86_nan_s(v1 - v2, v1, v2));
           break;
+        }
 
-        case Y_SUB_D_OP:
-          SET_FPR_D(FD(inst), FPR_D(FS(inst)) - FPR_D(FT(inst)));
+        case Y_SUB_D_OP: {
+          double v1 = FPR_D(FS(inst)), v2 = FPR_D(FT(inst));
+          SET_FPR_D(FD(inst), x86_nan_d(v1 - v2, v1, v2));
           break;
+        }
 
         case Y_SWC1_OP: {
           float val = FPR_S(RT(inst));
@@ -1415,14 +1470,14 @@ bool run_spim(mem_addr initial_PC, int steps_to_run, bool display) {
         case Y_TRUNC_W_D_OP: {
           double val = FPR_D(FS(inst));
 
-          SET_FPR_W(FD(inst), (int32)val); /* Casting truncates */
+          SET_FPR_W(FD(inst), x86_cvt_w(val)); /* Truncates */
           break;
         }
 
         case Y_TRUNC_W_S_OP: {
           double val = (double)FPR_S(FS(inst));
 
-          SET_FPR_W(FD(inst), (int32)val); /* Casting truncates */
+          SET_FPR_W(FD(inst), x86_cvt_w(val)); /* Truncates */
           break;
         }
 

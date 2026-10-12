@@ -40,6 +40,11 @@
 #include "spim_settings.h"
 #include "version.h"
 
+// Set by CMakeLists.txt; QtSpim.pro does not set it.
+#ifndef QTSPIM_ARM_VERSION
+#define QTSPIM_ARM_VERSION "9.1.24-arm (development build)"
+#endif
+
 #include <QStringBuilder>
 #define QT_USE_FAST_CONCATENATION
 #include <QMessageBox>
@@ -716,12 +721,15 @@ void SpimView::help_ViewHelp() {
   QProcess* process = new QProcess;
   QStringList args;
 
+  // On the Mac, the help collection and Assistant are inside the app bundle,
+  // wherever it is installed: <bundle>/Contents/{Resources/doc,MacOS}.
+  QString appDir = QCoreApplication::applicationDirPath();
+
   QString helpFile[] = {
       qgetenv("PROGRAMFILES(x86)") +
-          QString("/QtSpim/help/qtspim.qhc"),  // Windows
-      QString(
-          "/Applications/QtSpim.app/Contents/Resources/doc/qtspim.qhc"),  // Mac
-      QString("/usr/lib/qtspim/help/qtspim.qhc"),  // Linux
+          QString("/QtSpim/help/qtspim.qhc"),            // Windows
+      appDir + QString("/../Resources/doc/qtspim.qhc"),  // Mac
+      QString("/usr/lib/qtspim/help/qtspim.qhc"),        // Linux
       0};
 
   int i;
@@ -740,13 +748,12 @@ void SpimView::help_ViewHelp() {
     return;
   }
 
-  char* assistant[] = {
-      "assistant",                                          // Windows
-      "/Applications/QtSpim.app/Contents/MacOS/Assistant",  // Mac
-      "/usr/lib/qtspim/bin/assistant",                      // Linux
-      0};
+  QString assistant[] = {QString("assistant"),                      // Windows
+                         appDir + QString("/Assistant"),            // Mac
+                         QString("/usr/lib/qtspim/bin/assistant"),  // Linux
+                         0};
 
-  process->start(QLatin1String(assistant[i]), args);
+  process->start(assistant[i], args);
   if (!process->waitForStarted()) {
     QMessageBox msgBox;
     msgBox.setText(
@@ -757,11 +764,17 @@ void SpimView::help_ViewHelp() {
 
 void SpimView::help_AboutSPIM() {
   QMessageBox box(
-      QMessageBox::NoIcon, "About QtSpim",
+      QMessageBox::NoIcon, tr("About QtSpim ARM"),
       QString("<span style='font-size: 16pt;'>"
-              "<center><strong>QtSpim</strong></center>"
+              "<center><strong>QtSpim ARM</strong></center>"
               "<center><img src=':/icons/qtspim.png'>"
               "<span style='font-size: 10pt;'>") +
+          QString("<p>") + tr("Version %1").arg(QTSPIM_ARM_VERSION) +
+          QString("</p><p>") +
+          tr("QtSpim ARM is an unofficial fork of QtSpim. It is not "
+             "affiliated with or endorsed by James R. Larus.") +
+          QString("</p><p><a href='https://github.com/tw-yuan/qtspim-arm'>"
+                  "https://github.com/tw-yuan/qtspim-arm</a></p><hr>") +
           QString("<p>") + QString(SPIM_VERSION) + QString("</p>") +
           QString("<p>SPIM is a simulator of the MIPS R3000 processor.</p>"
                   "<p>Copyright (c) 1990-2015, James R. Larus "

@@ -46,7 +46,7 @@
    </rect>
   </property>
   <property name="windowTitle">
-   <string>QtSpim</string>
+   <string>QtSpim ARM</string>
   </property>
   <property name="dockOptions">
    <set>QMainWindow::AnimatedDocks|QMainWindow::ForceTabbedDocks|QMainWindow::VerticalTabs</set>
@@ -560,7 +560,7 @@
   </action>
   <action name="action_Help_AboutSPIM">
    <property name="text">
-    <string>About QtSpim</string>
+    <string>About QtSpim ARM</string>
    </property>
   </action>
   <action name="action_File_Print">

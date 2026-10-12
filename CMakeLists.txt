@@ -43,6 +43,12 @@ if(CMAKE_HOST_SYSTEM_NAME STREQUAL "Darwin" AND NOT DEFINED CMAKE_OSX_ARCHITECTU
       "macOS architectures to build (default: Universal Binary)")
 endif()
 
+# Minimum macOS version: that of Qt 6.8 LTS, the Qt used for releases.
+if(CMAKE_HOST_SYSTEM_NAME STREQUAL "Darwin" AND NOT DEFINED CMAKE_OSX_DEPLOYMENT_TARGET
+   AND NOT DEFINED ENV{MACOSX_DEPLOYMENT_TARGET})
+  set(CMAKE_OSX_DEPLOYMENT_TARGET "12.0" CACHE STRING "Minimum macOS version")
+endif()
+
 project(QtSpim LANGUAGES CXX)
 
 if(NOT CMAKE_BUILD_TYPE AND NOT CMAKE_CONFIGURATION_TYPES)
@@ -52,6 +58,20 @@ endif()
 include(GNUInstallDirs)
 
 option(SPIM_BUILD_QTSPIM "Build the QtSpim application (requires Qt 6)" ON)
+
+# Application identity (docs/PORTING_PLAN.md, owner's decisions).  Releases
+# are tagged v<QTSPIM_VERSION>-arm.<QTSPIM_BUILD_NUMBER>; the release build
+# sets QTSPIM_BUILD_NUMBER, and 0 means a development build.
+set(QTSPIM_APP_NAME "QtSpim ARM")
+set(QTSPIM_BUNDLE_ID "net.yuan-tw.qtspim")
+set(QTSPIM_VERSION "9.1.24")
+set(QTSPIM_BUILD_NUMBER "0" CACHE STRING
+  "Build number (CFBundleVersion and the N in v9.1.24-arm.N); 0 = development")
+if(QTSPIM_BUILD_NUMBER STREQUAL "0")
+  set(QTSPIM_FULL_VERSION "${QTSPIM_VERSION}-arm (development build)")
+else()
+  set(QTSPIM_FULL_VERSION "${QTSPIM_VERSION}-arm.${QTSPIM_BUILD_NUMBER}")
+endif()
 option(SPIM_BUILD_HELP "Build the QtSpim help files with qhelpgenerator" ON)
 
 # ---------------------------------------------------------------------------
@@ -200,6 +220,8 @@ set_target_properties(QtSpim PROPERTIES
   AUTOUIC ON
   AUTORCC ON)
 target_include_directories(QtSpim PRIVATE CPU QtSpim ${SPIM_GENERATED_DIR})
+target_compile_definitions(QtSpim PRIVATE
+  "QTSPIM_ARM_VERSION=\"${QTSPIM_FULL_VERSION}\"")
 target_compile_options(QtSpim PRIVATE ${SPIM_WARNING_FLAGS})
 target_link_libraries(QtSpim PRIVATE Qt6::Core Qt6::Widgets Qt6::PrintSupport)
 
@@ -207,8 +229,12 @@ if(APPLE)
   set_source_files_properties(QtSpim/NewIcon.icns PROPERTIES
     MACOSX_PACKAGE_LOCATION Resources)
   target_sources(QtSpim PRIVATE QtSpim/NewIcon.icns)
+  # QtSpim ARM.app, so it can be installed next to the original QtSpim.app.
+  # QtSpim/macinfo.plist is still used by QtSpim.pro.
+  configure_file(QtSpim/Info.plist.in ${CMAKE_CURRENT_BINARY_DIR}/Info.plist @ONLY)
   set_target_properties(QtSpim PROPERTIES
-    MACOSX_BUNDLE_INFO_PLIST ${CMAKE_CURRENT_SOURCE_DIR}/QtSpim/macinfo.plist)
+    OUTPUT_NAME "${QTSPIM_APP_NAME}"
+    MACOSX_BUNDLE_INFO_PLIST ${CMAKE_CURRENT_BINARY_DIR}/Info.plist)
 elseif(WIN32)
   target_sources(QtSpim PRIVATE QtSpim/qtspim.rc)
 endif()

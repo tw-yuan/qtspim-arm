@@ -253,6 +253,19 @@ qt_add_translations(QtSpim
   RESOURCE_PREFIX /translations
   LUPDATE_OPTIONS -no-obsolete -locations none)
 
+# Qt's own Traditional Chinese strings (standard buttons and dialogs), so the
+# app does not depend on where Qt's translations are installed.
+get_target_property(_qmake Qt6::qmake IMPORTED_LOCATION)
+execute_process(COMMAND ${_qmake} -query QT_INSTALL_TRANSLATIONS
+  OUTPUT_VARIABLE _qt_translations OUTPUT_STRIP_TRAILING_WHITESPACE
+  ERROR_QUIET)
+if(EXISTS "${_qt_translations}/qtbase_zh_TW.qm")
+  qt_add_resources(QtSpim qt_translations
+    PREFIX /translations
+    BASE "${_qt_translations}"
+    FILES "${_qt_translations}/qtbase_zh_TW.qm")
+endif()
+
 set_target_properties(QtSpim PROPERTIES
   AUTOMOC ON
   AUTOUIC ON

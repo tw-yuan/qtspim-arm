@@ -69,11 +69,11 @@ static void installTranslations(QApplication& app) {
   if (ours->load(QStringLiteral(":/translations/qtspim_zh_TW.qm"))) {
     app.installTranslator(ours);
   }
-  // Qt's own strings (standard buttons and dialogs).
+  // Qt's own strings (standard buttons and dialogs), embedded by
+  // CMakeLists.txt or else from Qt's installation.
   auto* qt = new QTranslator(&app);
-  if (qt->load(QLocale(QLocale::Chinese, QLocale::TraditionalChineseScript,
-                       QLocale::Taiwan),
-               QStringLiteral("qtbase"), QStringLiteral("_"),
+  if (qt->load(QStringLiteral(":/translations/qtbase_zh_TW.qm")) ||
+      qt->load(QStringLiteral("qtbase_zh_TW"),
                QLibraryInfo::path(QLibraryInfo::TranslationsPath))) {
     app.installTranslator(qt);
   }

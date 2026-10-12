@@ -31,6 +31,9 @@
    POSSIBILITY OF SUCH DAMAGE.
 */
 
+#ifndef CONSOLE_H
+#define CONSOLE_H
+
 #include <QObject>
 #include <QPlainTextEdit>
 #include <QString>
@@ -61,3 +64,5 @@ class Console : public QPlainTextEdit {
   QString inputBuffer;
   QEventLoop* l;
 };
+
+#endif  // CONSOLE_H

@@ -26,8 +26,9 @@ from the original build check this; see [`regression/README.md`](regression/READ
 
 ## Status
 
-Work in progress; there is no release yet. [`CHANGES.md`](CHANGES.md) lists
-every difference from the original.
+Work in progress. Test builds are on the
+[Releases](https://github.com/tw-yuan/qtspim-arm/releases) page.
+[`CHANGES.md`](CHANGES.md) lists every difference from the original.
 
 | Part | State |
 |---|---|
@@ -37,6 +38,25 @@ every difference from the original.
 | App identity (QtSpim ARM, `net.yuan-tw.qtspim`) | done |
 | Signing, notarization and DMG | planned |
 | Built-in editor, new interface ([design](docs/UI_DESIGN.md)), Traditional Chinese | done; the classic QtSpim interface is kept |
+
+## Download and install
+
+QtSpim ARM runs on macOS 13 or later, on Apple Silicon and Intel Macs.
+
+1. Download `QtSpim-ARM-<version>.dmg` from
+   [Releases](https://github.com/tw-yuan/qtspim-arm/releases), open it and drag
+   **QtSpim ARM** into **Applications**.
+2. The test builds are not yet signed with an Apple Developer ID or
+   notarized, so the first time macOS refuses to open the app. Open it once,
+   then go to **System Settings › Privacy & Security**, find "QtSpim ARM was
+   blocked" near the bottom and click **Open Anyway**. Alternatively, run this
+   in Terminal:
+
+   ```bash
+   xattr -dr com.apple.quarantine "/Applications/QtSpim ARM.app"
+   ```
+
+   After that the app opens normally.
 
 ## The interface
 

@@ -1,0 +1,13 @@
+Loaded: CPU/exceptions.s
+open = 1 0x00000001
+read = 20 0x00000014
+second read = 28 0x0000001c
+text: [Line one of the file-syscall fixture.
+Line two.
+]
+read at EOF = 0 0x00000000
+close = 0 0x00000000
+read from closed fd = -1 0xffffffff
+open missing file = -1 0xffffffff
+written with the write syscall
+write = 31 0x0000001f

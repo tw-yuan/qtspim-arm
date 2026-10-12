@@ -1,0 +1,7 @@
+Loaded: CPU/exceptions.s
+SPIM IO Test.
+Only runs with -mapped_io flag.
+Please type 6 input lines:
+line1
+line2
+line3

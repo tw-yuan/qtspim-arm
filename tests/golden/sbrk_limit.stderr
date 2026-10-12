@@ -1,0 +1,2 @@
+Can't expand data segment by 1048576 bytes to 1179648 bytes
+Use -ldata # with # > 1179648

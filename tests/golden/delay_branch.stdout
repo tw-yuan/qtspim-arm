@@ -1,0 +1,13 @@
+Loaded: CPU/exceptions.s
+b: delay slot executed = 0
+beq taken: delay slot executed = 0
+bne not taken: delay slot executed = 1
+beql taken: delay slot executed = 0
+bnel not taken: delay slot executed = 0
+j: delay slot executed = 0
+jr: delay slot executed = 0
+jal: delay slot executed = 0
+jal: $ra - address of jal = 4
+jalr: $ra - address of jalr = 4
+bgezal: $ra - address of bgezal = 4
+bc1t taken: delay slot executed = 0

@@ -1,0 +1,23 @@
+spim: (parser) immediate value (74565) out of range (-32768 .. 32767) on line 46 of file regression/cases/parse_errors.s
+	  addi $t0, $t0, 0x12345		# immediate out of range
+
+	                                                  ^
+spim: (parser) immediate value (-1) out of range (0 .. 65535) on line 47 of file regression/cases/parse_errors.s
+	  ori $t0, $t0, -1		# immediate out of range
+
+	                                            ^
+spim: (parser) Shift distance can only be in the range 0..31 on line 47 of file regression/cases/parse_errors.s
+	  sll $t0, $t0, 40		# shift amount out of range
+	                ^
+spim: (parser) Warning: MIPS32 Rev 2 instruction is not implemented. Instruction ignored. on line 48 of file regression/cases/parse_errors.s
+	  rotr $t0, $t0, 4		# MIPS32 Rev 2: not implemented
+	                 ^
+spim: (parser) Label is defined for the second time on line 52 of file regression/cases/parse_errors.s
+	  dup:	nop				# label defined twice
+	     ^
+spim: (parser) syntax error on line 59 of file regression/cases/parse_errors.s
+	  add $t0, $t0			# syntax error: missing operand
+
+	                                                ^
+Instruction references undefined symbol at 0x00400040
+  [0x00400040]	0x3c010000  lui $1, 0 [undefined_label]     ; 49: lw $t0, undefined_label		# undefined symbol

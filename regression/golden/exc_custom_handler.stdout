@@ -1,4 +1,4 @@
-Loaded: tests/cases/exc_custom_handler.s
+Loaded: regression/cases/exc_custom_handler.s
 main started
 custom handler: ExcCode=12 EPC=00400038
 custom handler: ExcCode=9 EPC=0040003c

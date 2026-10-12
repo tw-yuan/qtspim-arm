@@ -34,8 +34,8 @@
 #
 
 	.data
-path:	.asciiz "tests/cases/data/file_syscall.txt"
-missing:	.asciiz "tests/cases/data/does-not-exist.txt"
+path:	.asciiz "regression/cases/data/file_syscall.txt"
+missing:	.asciiz "regression/cases/data/does-not-exist.txt"
 msg_write:	.asciiz "written with the write syscall\n"
 msg_write_end:
 m_open:	.asciiz "open = "

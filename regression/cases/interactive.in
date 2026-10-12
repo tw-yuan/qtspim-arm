@@ -1,4 +1,4 @@
-load "tests/cases/interactive_prog.s"
+load "regression/cases/interactive_prog.s"
 print_symbols
 breakpoint main
 breakpoint loop

@@ -131,7 +131,7 @@ scripts/run-tests.sh build/spim
 scripts/run-tests.sh build/spim    # or: ctest --test-dir build
 ```
 
-See `tests/README.md`. The tests check the command-line `spim`; QtSpim uses the
+See `regression/README.md`. The tests check the command-line `spim`; QtSpim uses the
 same simulator core.
 
 ## Differences from the old build files

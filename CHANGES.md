@@ -7,7 +7,7 @@ see [`README.md`](README.md).
 ## Simulator behaviour
 
 The simulator must behave exactly like the original. The regression tests in
-[`tests/`](tests/README.md) were recorded with the unmodified r764 build and
+[`regression/`](regression/README.md) were recorded with the unmodified r764 build and
 pass on every build of QtSpim ARM (x86_64 and arm64).
 
 | | Original 9.1.24 | QtSpim ARM |
@@ -19,7 +19,7 @@ pass on every build of QtSpim ARM (x86_64 and arm64).
 
 The only change in the simulator core is in `CPU/run.cpp` (the two rows above).
 Behaviour of the original that looks like a bug is kept on purpose; examples
-are listed in [`tests/README.md`](tests/README.md#original-spim-behaviour-recorded-here).
+are listed in [`regression/README.md`](regression/README.md#original-spim-behaviour-recorded-here).
 
 ## Platform and build
 
@@ -63,8 +63,8 @@ the keys under which recent files are saved.
 
 | | Original 9.1.24 | QtSpim ARM |
 |---|---|---|
-| Tests | six torture tests in `Tests/`; `tt.alu.bare.s` no longer assembles | the same plus 36 more test runs: 42 in all, comparing stdout, stderr and exit status with recordings from the original build, run by `scripts/run-tests.sh` |
-| Documentation | `README`, `Documentation/` | also `README.md`, `CHANGES.md`, `docs/BUILDING.md`, `tests/README.md` |
+| Tests | six torture tests in `Tests/`; `tt.alu.bare.s` no longer assembles | the same plus 36 more test runs in `regression/`: 42 in all, comparing stdout, stderr and exit status with recordings from the original build, run by `scripts/run-tests.sh` |
+| Documentation | `README`, `Documentation/` | also `README.md`, `CHANGES.md`, `docs/BUILDING.md`, `docs/UI_DESIGN.md`, `regression/README.md` |
 
 ## Not changed
 

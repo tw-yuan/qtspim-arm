@@ -1,0 +1,4 @@
+spim: (parser) syntax error on line 40 of file regression/cases/bare_pseudo.s
+	  	li $v0, 4
+	      ^
+Attempt to execute non-instruction at 0x00400000

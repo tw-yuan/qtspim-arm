@@ -1,5 +1,5 @@
 Loaded: CPU/exceptions.s
 argc = 1
-argv[0] = "tests/cases/argv.s"
+argv[0] = "regression/cases/argv.s"
 argv[argc] is NULL = 1
 environment entries = 0

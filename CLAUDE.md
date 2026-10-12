@@ -18,6 +18,7 @@
 | `QtSpim/` | Qt 圖形介面（目前為 qmake：`QtSpim.pro`） | 主要工作區 |
 | `spim/` | 命令列版，`Makefile` 含 `test` / `test_bare` | 用來產生行為基準 |
 | `Tests/` | 上游 torture tests（`tt.*.s`、`tt.in`） | 不要修改 |
+| `regression/` | 回歸測試：`manifest.txt`、`cases/`、`golden/`、說明 | golden 只能用未修改的原版 r764 錄製（例外見 `regression/README.md`） |
 | `Documentation/`、`QtSpim/help/` | 文件與說明檔 | 可更新 |
 | `Setup/`、`PCSpim/`、`xspim/` | 舊打包設定、Windows 版、X11 版 | **不在範圍內，不要修改或刪除** |
 
@@ -43,12 +44,12 @@ CMake 建置（細節見 `docs/BUILDING.md`）：
 ```bash
 cmake -B build -G Ninja -DCMAKE_PREFIX_PATH=<Universal 版 Qt 6.11>   # macOS 預設 arm64;x86_64，最低 macOS 13
 cmake --build build
-scripts/run-tests.sh build/spim     # 與 tests/golden/ 比對，有差異即失敗（或 ctest --test-dir build）
+scripts/run-tests.sh build/spim     # 與 regression/golden/ 比對，有差異即失敗（或 ctest --test-dir build）
 lipo -info build/spim build/QtSpim.app/Contents/MacOS/QtSpim
 ```
 
 - Homebrew 的 Qt 只有本機架構，做不出 Universal 的 QtSpim。要用 Qt 官方安裝程式或 aqtinstall 的 Qt，否則就加 `-DCMAKE_OSX_ARCHITECTURES=arm64`。
-- 測試一律用 `env -i` 執行 spim（spim 會把環境變數複製到模擬堆疊上），而且不能用 `alarm()` 包裝（spim 用 `ITIMER_REAL` 驅動 CP0 計時器）。見 `tests/README.md`。
+- 測試一律用 `env -i` 執行 spim（spim 會把環境變數複製到模擬堆疊上），而且不能用 `alarm()` 包裝（spim 用 `ITIMER_REAL` 驅動 CP0 計時器）。見 `regression/README.md`。
 - `fp_host_dependent`、`fp_host_edge` 記錄了會隨主機 CPU 而不同的浮點結果（NaN 位元、超出範圍的浮點轉整數）。`CPU/run.cpp` 已讓所有主機都產生 x86 的結果，所以在 arm64 上也必須通過；**不要改 golden**。
 
 參考實作：`brew install spim` 的 9.1.24 就是用 r764 編譯的，可拿來對照輸出（Apple Silicon 上是 arm64 版，`fp_host_dependent` 會不同）。

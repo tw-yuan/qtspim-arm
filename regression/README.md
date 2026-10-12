@@ -14,8 +14,8 @@ scripts/run-tests.sh path/to/spim 'tt.*'     # only some tests (shell patterns)
 scripts/run-tests.sh --keep path/to/spim     # keep the actual outputs
 ```
 
-The script runs every test in `tests/manifest.txt` and compares the standard
-output, standard error and exit status with `tests/golden/<test>.stdout`,
+The script runs every test in `regression/manifest.txt` and compares the standard
+output, standard error and exit status with `regression/golden/<test>.stdout`,
 `.stderr` and `.status`. Any difference is printed as a unified diff, and the
 script exits with status 1. It needs only bash 3.2, `diff`, `cmp` and `sleep`,
 which macOS includes. A test that runs longer than `SPIM_TEST_TIMEOUT` seconds
@@ -78,6 +78,13 @@ They were then checked against other builds of the same unmodified source:
 
 `--record` only writes golden files for tests that have none, and it never
 overwrites existing ones.
+
+On 2026-10-12 the directory was renamed from `tests/` to `regression/` (on the
+case-insensitive macOS file system `tests/` and the upstream `Tests/` were the
+same folder). The test programs' paths appear in spim's output and on the
+simulated stack, so all golden files were recorded again with the same
+unmodified r764 build. Apart from the paths, the only change was the initial
+`$sp` in `data_layout` (8 bytes lower, for the 5 characters longer path).
 
 ## Rules
 

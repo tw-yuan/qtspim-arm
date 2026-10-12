@@ -1,4 +1,4 @@
-spim: (parser) syntax error on line 39 of file tests/cases/syntax_error.s
+spim: (parser) syntax error on line 39 of file regression/cases/syntax_error.s
 	  	frobnicate $t0, $t1
 	              ^
 Attempt to execute non-instruction at 0x00400028

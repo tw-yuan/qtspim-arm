@@ -1,0 +1,62 @@
+# Test manifest for scripts/run-tests.sh.
+#
+# One test per line:  name | stdin | spim arguments
+#
+#   name   Test name; the expected output is in regression/golden/<name>.stdout,
+#          <name>.stderr and <name>.status (exit status).
+#   stdin  File fed to spim's standard input, or "-" for /dev/null.
+#   args   Arguments passed to spim, split on white space (no quoting).
+#
+# spim runs in the repository root with an empty environment (env -i), so
+# all paths are relative to the repository root.  The exception handler is
+# always given explicitly (-ef CPU/exceptions.s) or disabled, so the result
+# does not depend on the default handler path compiled into spim.
+
+# Upstream torture tests, with the arguments used by spim/Makefile (test and
+# test_bare targets).
+tt.bare        | -                      | -delayed_branches -delayed_loads -noexception -file Tests/tt.bare.s
+tt.core        | Tests/tt.in            | -ef CPU/exceptions.s -file Tests/tt.core.s
+tt.le          | -                      | -ef CPU/exceptions.s -file Tests/tt.le.s
+tt.dir         | -                      | -ef CPU/exceptions.s -file Tests/tt.dir.s
+tt.alu.bare    | -                      | -bare -noexception -file Tests/tt.alu.bare.s
+tt.fpu.bare    | -                      | -bare -noexception -file Tests/tt.fpu.bare.s
+
+# Other upstream programs.
+tt.io          | regression/cases/tt.io.in   | -mapped_io -ef CPU/exceptions.s -file Tests/tt.io.s
+helloworld     | -                      | -ef CPU/exceptions.s -file helloworld.s
+
+# Supplementary tests (regression/cases).
+syscall_print          | -                           | -ef CPU/exceptions.s -file regression/cases/syscall_print.s
+syscall_read           | regression/cases/syscall_read.in | -ef CPU/exceptions.s -file regression/cases/syscall_read.s
+syscall_sbrk           | -                           | -ef CPU/exceptions.s -file regression/cases/syscall_sbrk.s
+sbrk_limit             | -                           | -ef CPU/exceptions.s -file regression/cases/sbrk_limit.s
+sbrk_limit.ldata       | -                           | -ldata 2097152 -ef CPU/exceptions.s -file regression/cases/sbrk_limit.s
+syscall_exit           | -                           | -ef CPU/exceptions.s -file regression/cases/syscall_exit.s
+syscall_exit2          | -                           | -ef CPU/exceptions.s -file regression/cases/syscall_exit2.s
+syscall_file           | -                           | -ef CPU/exceptions.s -file regression/cases/syscall_file.s
+syscall_unknown        | -                           | -ef CPU/exceptions.s -file regression/cases/syscall_unknown.s
+exceptions             | -                           | -ef CPU/exceptions.s -file regression/cases/exceptions.s
+exceptions.quiet       | -                           | -quiet -ef CPU/exceptions.s -file regression/cases/exceptions.s
+exc_bad_pc             | -                           | -ef CPU/exceptions.s -file regression/cases/exc_bad_pc.s
+exc_no_handler         | -                           | -noexception -file regression/cases/exc_no_handler.s
+exc_custom_handler     | -                           | -ef regression/cases/exc_custom_handler.s -file regression/cases/exc_custom_main.s
+delay_branch           | -                           | -ef CPU/exceptions.s -file regression/cases/delay_branch.s
+delay_branch.delayed   | -                           | -delayed_branches -ef CPU/exceptions.s -file regression/cases/delay_branch.s
+delay_load             | -                           | -ef CPU/exceptions.s -file regression/cases/delay_load.s
+delay_load.delayed     | -                           | -delayed_loads -ef CPU/exceptions.s -file regression/cases/delay_load.s
+delay_both.delayed     | -                           | -delayed_branches -delayed_loads -ef CPU/exceptions.s -file regression/cases/delay_load.s
+bare                   | -                           | -bare -noexception -file regression/cases/bare.s
+bare_pseudo            | -                           | -bare -noexception -file regression/cases/bare_pseudo.s
+int_arith              | -                           | -ef CPU/exceptions.s -file regression/cases/int_arith.s
+fp_arith               | -                           | -ef CPU/exceptions.s -file regression/cases/fp_arith.s
+fp_host_dependent      | -                           | -ef CPU/exceptions.s -file regression/cases/fp_host_dependent.s
+fp_host_edge           | -                           | -ef CPU/exceptions.s -file regression/cases/fp_host_edge.s
+endian                 | -                           | -ef CPU/exceptions.s -file regression/cases/endian.s
+data_layout            | -                           | -ef CPU/exceptions.s -file regression/cases/data_layout.s
+argv                   | -                           | -ef CPU/exceptions.s -file regression/cases/argv.s
+argv.extra             | -                           | -ef CPU/exceptions.s -file regression/cases/argv.s one two three
+parse_errors           | -                           | -ef CPU/exceptions.s -file regression/cases/parse_errors.s
+syntax_error           | -                           | -ef CPU/exceptions.s -file regression/cases/syntax_error.s
+missing_file           | -                           | -ef CPU/exceptions.s -file regression/cases/does-not-exist.s
+usage                  | -                           | -no-such-option -ef CPU/exceptions.s
+interactive            | regression/cases/interactive.in  | -ef CPU/exceptions.s

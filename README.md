@@ -20,7 +20,7 @@ unchanged in [`README`](README).
 teaching tool, and assignments are often graded with the original. Any change
 in instruction semantics, system calls, exception handling, delay slots,
 memory layout or output format is treated as a bug. Regression tests recorded
-from the original build check this; see [`tests/README.md`](tests/README.md).
+from the original build check this; see [`regression/README.md`](regression/README.md).
 
 ## Status
 

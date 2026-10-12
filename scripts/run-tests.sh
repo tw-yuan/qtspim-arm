@@ -33,16 +33,16 @@
 #
 # Usage: scripts/run-tests.sh [--record] [--keep] SPIM [TEST...]
 #
-# Runs every test in tests/manifest.txt (or only the named tests; shell
+# Runs every test in regression/manifest.txt (or only the named tests; shell
 # patterns such as 'tt.*' are allowed) with the given spim executable and
 # compares standard output, standard error and the exit status with
-# tests/golden/<test>.{stdout,stderr,status}.  Any difference is shown as a
+# regression/golden/<test>.{stdout,stderr,status}.  Any difference is shown as a
 # unified diff and makes the script exit with status 1.
 #
 #   --record  Write golden files for tests that do not have any yet.
 #             Existing golden files are never overwritten.  Golden files
 #             must only be recorded with the original SPIM 9.1.24 (r764)
-#             build; see tests/README.md.
+#             build; see regression/README.md.
 #   --keep    Keep the directory with the actual outputs and print its path.
 #
 # Environment:
@@ -82,8 +82,8 @@ spim="$(cd "$(dirname "$spim")" && pwd)/$(basename "$spim")"
 root="$(cd "$(dirname "$0")/.." && pwd)"
 cd "$root" || exit 2
 
-manifest=tests/manifest.txt
-golden=tests/golden
+manifest=regression/manifest.txt
+golden=regression/golden
 timeout="${SPIM_TEST_TIMEOUT:-60}"
 
 out="$(mktemp -d "${TMPDIR:-/tmp}/spim-tests.XXXXXX")" || exit 2

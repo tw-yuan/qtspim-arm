@@ -31,7 +31,7 @@
    POSSIBILITY OF SUCH DAMAGE.
 */
 
-#include <QDesktopWidget>
+#include <QScreen>
 #include <QMessageBox>
 
 #include "spimview.h"
@@ -50,7 +50,7 @@ void SpimView::readSettings() {
   // If the size of the restored window exceeds the current screen size, resize
   // the window.
   //
-  const QRect availGeo = App->desktop()->availableGeometry(this);
+  const QRect availGeo = screen()->availableGeometry();
   const QRect& curFGeo = this->frameGeometry();
   if (!availGeo.contains(curFGeo)) {
     this->adjustSize();
@@ -111,7 +111,10 @@ void SpimView::readSettings() {
   st_recentFiles.clear();
   int i;
   for (i = 0; i < st_recentFilesLength; i++) {
-    QString file = settings.value("RecentFile" + QString(i), "").toString();
+    // The key is "RecentFile" followed by the character with code i (not the
+    // digit), as in the original QtSpim, so existing settings still load.
+    QString file =
+        settings.value("RecentFile" + QString(QChar(i)), "").toString();
     st_recentFiles.append(file);
   }
   rebuildRecentFilesMenu();
@@ -178,9 +181,9 @@ void SpimView::writeSettings(bool omitWindowState) {
   int i;
   for (i = 0; i < st_recentFilesLength; i++) {
     if (i < st_recentFiles.length()) {
-      settings.setValue("RecentFile" + QString(i), st_recentFiles[i]);
+      settings.setValue("RecentFile" + QString(QChar(i)), st_recentFiles[i]);
     } else {
-      settings.setValue("RecentFile" + QString(i), "");
+      settings.setValue("RecentFile" + QString(QChar(i)), "");
     }
   }
   settings.endGroup();

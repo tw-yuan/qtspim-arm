@@ -101,7 +101,8 @@ int main(int argc, char* argv[]) {
       "         min-width: 8ex;"
       "         padding: 2px; padding-left:10px; padding-right:10px;"
 #endif
-      "         font: bold 12px"
+      "         font: bold 12px;"
+      "         color: black; /* readable on the light tab background */"
       "     }"
       ""
       "     QTabBar::tab:selected, QTabBar::tab:hover {"

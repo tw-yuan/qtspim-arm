@@ -295,6 +295,19 @@ install(TARGETS QtSpim
   BUNDLE DESTINATION .
   RUNTIME DESTINATION ${CMAKE_INSTALL_BINDIR})
 
+# The help pages as plain HTML, opened in the web browser when Qt Assistant
+# is not available (QtSpim ARM does not bundle Assistant yet).
+file(GLOB help_pages CONFIGURE_DEPENDS
+  ${CMAKE_CURRENT_SOURCE_DIR}/QtSpim/help/*.html
+  ${CMAKE_CURRENT_SOURCE_DIR}/QtSpim/help/*.jpg)
+if(APPLE)
+  set_source_files_properties(${help_pages} PROPERTIES
+    MACOSX_PACKAGE_LOCATION Resources/help)
+  target_sources(QtSpim PRIVATE ${help_pages})
+else()
+  install(FILES ${help_pages} DESTINATION ${CMAKE_INSTALL_DATADIR}/qtspim/help/html)
+endif()
+
 # ---------------------------------------------------------------------------
 # Help files (qtspim.qch and the qtspim.qhc collection for Qt Assistant)
 # ---------------------------------------------------------------------------

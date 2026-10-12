@@ -101,6 +101,11 @@ class MainWindow : public QMainWindow {
   bool saveAs();
   bool saveTo(const QString& path);
   void closeDocument();
+  // The welcome page and the editor; the document stays open on the
+  // welcome page.
+  void showWelcome();
+  void showWorkspace();
+  bool onWelcomePage() const;
   void setDocument(const QString& text, const QString& path,
                    const QString& name);
   void addRecentFile(const QString& path);
@@ -140,6 +145,7 @@ class MainWindow : public QMainWindow {
   void exportLog();
   void print();
   void showHelp();
+  bool openHelpPage(const QString& page);
   void showAbout();
   QString logText(bool registers, bool code, bool data, bool stack,
                   bool console) const;
@@ -166,7 +172,7 @@ class MainWindow : public QMainWindow {
   int recentFilesLength_ = 8;
 
   // Widgets.
-  QStackedWidget* pages_;
+  QStackedWidget* pages_ = nullptr;
   WelcomePage* welcome_;
   QSplitter* hsplit_;
   QSplitter* vsplit_;
@@ -198,6 +204,7 @@ class MainWindow : public QMainWindow {
   QStringList startupFiles_;  // given on the command line
 
   // Actions.
+  QAction* homeAct_;
   QAction* newAct_;
   QAction* openAct_;
   QAction* saveAct_;
@@ -244,6 +251,7 @@ class MainWindow : public QMainWindow {
   QAction* restoreLayoutAct_;
   QAction* classicAct_;
   QAction* helpAct_;
+  QAction* referenceAct_;
   QAction* aboutAct_;
 };
 

@@ -117,6 +117,37 @@ WelcomePage::WelcomePage(QWidget* parent) : QWidget(parent) {
   subtitle->setObjectName(QStringLiteral("welcomeSubtitle"));
   subtitle->setWordWrap(true);
 
+  // Back to the program in the editor, when there is one.
+  resume_ = new QPushButton(content);
+  resume_->setObjectName(QStringLiteral("resumeBar"));
+  resume_->setCursor(Qt::PointingHandCursor);
+  auto* resumeIcon = new QLabel(resume_);
+  resumeIcon->setPixmap(
+      Theme::icon(QStringLiteral("file-code"), Theme::accent(), 18)
+          .pixmap(18, 18));
+  resumeName_ = new QLabel(resume_);
+  resumeName_->setObjectName(QStringLiteral("rowTitle"));
+  auto* resumeText =
+      new QLabel(tr("Back to the program you were working on."), resume_);
+  resumeText->setObjectName(QStringLiteral("rowText"));
+  auto* resumeArrow = new QLabel(resume_);
+  resumeArrow->setPixmap(
+      Theme::icon(QStringLiteral("arrow-right"), Theme::accent(), 18)
+          .pixmap(18, 18));
+  for (QLabel* l : {resumeIcon, resumeName_, resumeText, resumeArrow}) {
+    l->setAttribute(Qt::WA_TransparentForMouseEvents);
+  }
+  auto* resumeLayout = new QHBoxLayout(resume_);
+  resumeLayout->setContentsMargins(14, 10, 14, 10);
+  resumeLayout->setSpacing(10);
+  resumeLayout->addWidget(resumeIcon);
+  resumeLayout->addWidget(resumeName_);
+  resumeLayout->addWidget(resumeText, 1);
+  resumeLayout->addWidget(resumeArrow);
+  resume_->setMinimumHeight(44);
+  resume_->hide();
+  connect(resume_, &QPushButton::clicked, this, &WelcomePage::resumeRequested);
+
   auto* cards = new QHBoxLayout;
   cards->setSpacing(12);
   QPushButton* newCard =
@@ -242,7 +273,9 @@ WelcomePage::WelcomePage(QWidget* parent) : QWidget(parent) {
   layout->addWidget(title);
   layout->addSpacing(6);
   layout->addWidget(subtitle);
-  layout->addSpacing(24);
+  layout->addSpacing(20);
+  layout->addWidget(resume_);
+  layout->addSpacing(12);
   layout->addLayout(cards);
   layout->addSpacing(28);
   layout->addLayout(columns);
@@ -317,4 +350,10 @@ void WelcomePage::setRecentFiles(const QStringList& files) {
     none->setContentsMargins(14, 10, 14, 10);
     recentLayout_->addWidget(none);
   }
+}
+
+void WelcomePage::setCurrentDocument(const QString& name) {
+  resumeName_->setText(tr("Continue editing %1").arg(name));
+  resume_->setAccessibleName(tr("Continue editing %1").arg(name));
+  resume_->setVisible(!name.isEmpty());
 }

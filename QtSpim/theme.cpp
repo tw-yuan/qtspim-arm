@@ -198,6 +198,9 @@ QLabel#cardTitle { font-size: 14px; font-weight: 600; color: %TEXT%; }
 QLabel#cardText { color: %TEXT3%; }
 QWidget#listBox { background: %WINDOW%; border: 1px solid %SEP%; border-radius: 6px; }
 QPushButton#listRow { border: 0; border-radius: 0; background: transparent; text-align: left; }
+QPushButton#resumeBar { background: %ACCENTTINT%; border: 1px solid #C9DBF5; border-radius: 6px; text-align: left; }
+QPushButton#resumeBar:hover { border-color: %ACCENT%; }
+QPushButton#resumeBar:focus { border: 2px solid %ACCENT%; }
 QPushButton#listRow:hover { background: %CHROME%; }
 QPushButton#listRow:focus { background: %ACCENTTINT%; }
 QLabel#rowTitle { font-weight: 600; color: %TEXT%; }

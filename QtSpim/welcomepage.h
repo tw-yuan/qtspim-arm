@@ -37,6 +37,8 @@
 #include <QStringList>
 #include <QWidget>
 
+class QLabel;
+class QPushButton;
 class QVBoxLayout;
 
 class WelcomePage : public QWidget {
@@ -46,6 +48,8 @@ class WelcomePage : public QWidget {
   explicit WelcomePage(QWidget* parent = nullptr);
 
   void setRecentFiles(const QStringList& files);
+  // The program open in the editor (empty if none), offered at the top.
+  void setCurrentDocument(const QString& name);
 
   // The examples in :/examples, as (resource name, title).
   struct Example {
@@ -61,11 +65,14 @@ class WelcomePage : public QWidget {
   void openRequested();
   void exampleRequested(const QString& file);
   void recentRequested(const QString& path);
+  void resumeRequested();
 
  private:
   QWidget* examplesBox_;
   QVBoxLayout* recentLayout_;
   QWidget* recentBox_;
+  QPushButton* resume_;
+  QLabel* resumeName_;
 };
 
 #endif  // WELCOMEPAGE_H

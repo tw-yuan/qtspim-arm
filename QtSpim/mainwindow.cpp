@@ -38,6 +38,7 @@
 #include <QCheckBox>
 #include <QCloseEvent>
 #include <QDialog>
+#include <QDesktopServices>
 #include <QDialogButtonBox>
 #include <QDir>
 #include <QDragEnterEvent>
@@ -65,6 +66,7 @@
 #include <QSettings>
 #include <QSplitter>
 #include <QStackedWidget>
+#include <QStandardPaths>
 #include <QStringConverter>
 #include <QTextDocument>
 #include <QTimer>
@@ -238,7 +240,11 @@ MainWindow::MainWindow(QWidget* parent)
   connect(welcome_, &WelcomePage::exampleRequested, this,
           &MainWindow::openExample);
   connect(welcome_, &WelcomePage::recentRequested, this,
-          [this](const QString& path) { openFile(path); });
+          [this](const QString& path) {
+            if (maybeSave()) openFile(path);
+          });
+  connect(welcome_, &WelcomePage::resumeRequested, this,
+          &MainWindow::showWorkspace);
 
   // Panels.
   connect(problems_, &ProblemsPanel::lineActivated, editor_,
@@ -298,6 +304,17 @@ void MainWindow::createActions() {
                                  : QStringLiteral("%1 (%2)").arg(text, keys));
     a->setStatusTip(text);
   };
+
+  homeAct_ = action(tr("Home"), QStringLiteral("house"));
+  homeAct_->setShortcut(QKeySequence(Qt::CTRL | Qt::SHIFT | Qt::Key_H));
+  tip(homeAct_, tr("Show the welcome page; the program stays open"));
+  connect(homeAct_, &QAction::triggered, this, [this] {
+    if (onWelcomePage() && hasDocument_) {
+      showWorkspace();
+    } else {
+      showWelcome();
+    }
+  });
 
   newAct_ = action(tr("New"), QStringLiteral("file-plus"));
   newAct_->setShortcut(QKeySequence::New);
@@ -485,6 +502,15 @@ void MainWindow::createActions() {
   helpAct_->setShortcut(QKeySequence::HelpContents);
   tip(helpAct_, tr("Open the SPIM manual"));
   connect(helpAct_, &QAction::triggered, this, &MainWindow::showHelp);
+  referenceAct_ = action(tr("MIPS Reference (SPIM Appendix A)"),
+                         QStringLiteral("book-open"));
+  connect(referenceAct_, &QAction::triggered, this, [this] {
+    if (!openHelpPage(QStringLiteral("HP_AppA.html"))) {
+      QMessageBox::information(
+          this, tr("QtSpim Help"),
+          tr("Cannot find the QtSpim help files. Check the installation."));
+    }
+  });
   aboutAct_ = action(tr("About QtSpim ARM"));
   aboutAct_->setMenuRole(QAction::AboutRole);
   connect(aboutAct_, &QAction::triggered, this, &MainWindow::showAbout);
@@ -547,6 +573,8 @@ void MainWindow::createMenus() {
   simulator->addAction(settingsAct_);
 
   QMenu* view = menuBar()->addMenu(tr("&View"));
+  view->addAction(homeAct_);
+  view->addSeparator();
   view->addAction(consoleAct_);
   view->addAction(memoryAct_);
   view->addAction(problemsAct_);
@@ -563,6 +591,7 @@ void MainWindow::createMenus() {
 
   QMenu* help = menuBar()->addMenu(tr("&Help"));
   help->addAction(helpAct_);
+  help->addAction(referenceAct_);
   help->addAction(aboutAct_);
 
   // The editing actions work on the editor.
@@ -599,8 +628,10 @@ void MainWindow::createMenus() {
   });
   connect(findAct_, &QAction::triggered, this,
           [this] { findBar_->showFind(); });
-  connect(replaceAct_, &QAction::triggered, this,
-          [this] { findBar_->showReplace(); });
+  connect(replaceAct_, &QAction::triggered, this, [this] {
+    showWorkspace();
+    findBar_->showReplace();
+  });
   connect(findNextAct_, &QAction::triggered, this,
           [this] { findBar_->findNext(); });
   connect(findPreviousAct_, &QAction::triggered, this,
@@ -630,6 +661,8 @@ void MainWindow::createToolBar() {
   bar->setToolButtonStyle(Qt::ToolButtonTextUnderIcon);
   bar->setIconSize(QSize(18, 18));
   bar->setContextMenuPolicy(Qt::PreventContextMenu);
+  bar->addAction(homeAct_);
+  bar->addSeparator();
   bar->addAction(newAct_);
   bar->addAction(openAct_);
   bar->addAction(saveAct_);
@@ -816,7 +849,7 @@ void MainWindow::setDocument(const QString& text, const QString& path,
   editor_->document()->setModified(false);
   settingDocument_ = false;
   hasDocument_ = true;
-  pages_->setCurrentIndex(1);
+  showWorkspace();
   setWindowFilePath(path);
   setWindowTitle(QStringLiteral("%1[*] — QtSpim ARM").arg(documentName()));
   setWindowModified(false);
@@ -960,9 +993,26 @@ void MainWindow::closeDocument() {
   settingDocument_ = false;
   setWindowFilePath(QString());
   setWindowTitle(QStringLiteral("QtSpim ARM"));
-  pages_->setCurrentWidget(welcome_);
+  showWelcome();
   sim_->start();
   onStateChanged();
+}
+
+bool MainWindow::onWelcomePage() const {
+  return pages_ != nullptr && pages_->currentWidget() == welcome_;
+}
+
+void MainWindow::showWelcome() {
+  welcome_->setCurrentDocument(hasDocument_ ? documentName() : QString());
+  pages_->setCurrentWidget(welcome_);
+  updateActions();
+}
+
+void MainWindow::showWorkspace() {
+  if (!hasDocument_ || pages_ == nullptr) return;
+  pages_->setCurrentIndex(1);
+  updateActions();
+  editor_->setFocus();
 }
 
 void MainWindow::addRecentFile(const QString& path) {
@@ -1036,6 +1086,7 @@ void MainWindow::run() {
     return;
   }
   if (!hasDocument_ || sim_->isBusy()) return;
+  showWorkspace();
   if (sim_->state() != Simulator::State::Ready || needsAssembly()) {
     if (!assemble()) return;
   }
@@ -1045,6 +1096,7 @@ void MainWindow::run() {
 
 void MainWindow::step() {
   if (!hasDocument_ || sim_->isBusy()) return;
+  showWorkspace();
   if (sim_->state() != Simulator::State::Paused &&
       sim_->state() != Simulator::State::Ready) {
     if (!assemble()) return;
@@ -1055,11 +1107,14 @@ void MainWindow::step() {
 }
 
 void MainWindow::resume() {
-  if (sim_->state() == Simulator::State::Paused) sim_->resume();
+  if (sim_->state() != Simulator::State::Paused) return;
+  showWorkspace();
+  sim_->resume();
 }
 
 void MainWindow::reset() {
   if (!hasDocument_ || sim_->isBusy()) return;
+  showWorkspace();
   assemble();
 }
 
@@ -1175,6 +1230,7 @@ void MainWindow::updateActions() {
   stopAct_->setEnabled(busy || paused);
   resetAct_->setEnabled(doc && !busy);
 
+  homeAct_->setEnabled(!busy);
   for (QAction* a : {newAct_, openAct_, closeAct_}) a->setEnabled(!busy);
   saveAct_->setEnabled(doc);
   saveAsAct_->setEnabled(doc);
@@ -1380,6 +1436,7 @@ void MainWindow::updateProblems() {
 // --- View ---
 
 void MainWindow::showBottomTab(int tab) {
+  if (onWelcomePage()) showWorkspace();
   if (bottomCollapsed_) setBottomCollapsed(false);
   bottomStack_->setCurrentIndex(tab);
   bottomTools_->setCurrentIndex(tab);
@@ -1633,8 +1690,8 @@ void MainWindow::print() {
 }
 
 void MainWindow::showHelp() {
-  // On the Mac, the help collection and Assistant are inside the app bundle,
-  // wherever it is installed: <bundle>/Contents/{Resources/doc,MacOS}.
+  // As the original QtSpim: the help collection in Qt Assistant, which on the
+  // Mac is inside the app bundle: <bundle>/Contents/{Resources/doc,MacOS}.
   const QString appDir = QCoreApplication::applicationDirPath();
   const QString helpFiles[] = {
       qEnvironmentVariable("PROGRAMFILES(x86)") +
@@ -1643,26 +1700,40 @@ void MainWindow::showHelp() {
       QStringLiteral("/usr/lib/qtspim/help/qtspim.qhc"),
   };
   const QString assistants[] = {
-      QStringLiteral("assistant"),
+      QStandardPaths::findExecutable(QStringLiteral("assistant")),
       appDir + QStringLiteral("/Assistant"),
       QStringLiteral("/usr/lib/qtspim/bin/assistant"),
   };
   for (int i = 0; i < 3; ++i) {
-    if (!QFileInfo::exists(helpFiles[i])) continue;
+    if (!QFileInfo::exists(helpFiles[i]) || assistants[i].isEmpty() ||
+        !QFileInfo::exists(assistants[i])) {
+      continue;
+    }
     auto* process = new QProcess(this);
     process->start(assistants[i],
                    {QStringLiteral("-collectionFile"), helpFiles[i]});
-    if (!process->waitForStarted()) {
-      QMessageBox::information(
-          this, tr("QtSpim Help"),
-          tr("Cannot start the help browser (Qt Assistant). Check the "
-             "installation."));
-    }
-    return;
+    if (process->waitForStarted()) return;
   }
+  // Otherwise the same pages in the web browser.
+  if (openHelpPage(QStringLiteral("qtspim_help.html"))) return;
   QMessageBox::information(
       this, tr("QtSpim Help"),
       tr("Cannot find the QtSpim help files. Check the installation."));
+}
+
+bool MainWindow::openHelpPage(const QString& page) {
+  const QString appDir = QCoreApplication::applicationDirPath();
+  const QString dirs[] = {
+      appDir + QStringLiteral("/../Resources/help"),  // Mac app bundle
+      appDir + QStringLiteral("/../share/qtspim/help/html"),
+  };
+  for (const QString& dir : dirs) {
+    const QString path = QDir(dir).filePath(page);
+    if (QFileInfo::exists(path)) {
+      return QDesktopServices::openUrl(QUrl::fromLocalFile(path));
+    }
+  }
+  return false;
 }
 
 void MainWindow::showAbout() {
@@ -1909,7 +1980,8 @@ void MainWindow::showNew() {
   } else {
     sim_->start();
     QString file = classic_->CurrentFile();
-    if (file.isEmpty() && !startupFiles_.isEmpty()) file = startupFiles_.first();
+    if (file.isEmpty() && !startupFiles_.isEmpty())
+      file = startupFiles_.first();
     show();
     if (!file.isEmpty() && QFileInfo::exists(file)) openFile(file);
   }

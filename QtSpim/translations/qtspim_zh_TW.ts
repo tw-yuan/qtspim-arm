@@ -688,10 +688,6 @@
         <translation>列印</translation>
     </message>
     <message>
-        <source>Cannot start the help browser (Qt Assistant). Check the installation.</source>
-        <translation>無法啟動說明瀏覽器（Qt Assistant），請檢查安裝。</translation>
-    </message>
-    <message>
         <source>Cannot find the QtSpim help files. Check the installation.</source>
         <translation>找不到 QtSpim 說明檔，請檢查安裝。</translation>
     </message>
@@ -730,6 +726,18 @@
     <message>
         <source>Assembled · %1 instructions</source>
         <translation>已組譯 · %1 個指令</translation>
+    </message>
+    <message>
+        <source>Home</source>
+        <translation>首頁</translation>
+    </message>
+    <message>
+        <source>Show the welcome page; the program stays open</source>
+        <translation>回到歡迎畫面，程式仍保持開啟</translation>
+    </message>
+    <message>
+        <source>MIPS Reference (SPIM Appendix A)</source>
+        <translation>MIPS 參考資料（SPIM 附錄 A）</translation>
     </message>
 </context>
 <context>
@@ -1661,6 +1669,14 @@
     <message>
         <source>No recent files.</source>
         <translation>沒有最近開啟的檔案。</translation>
+    </message>
+    <message>
+        <source>Back to the program you were working on.</source>
+        <translation>回到剛才的程式。</translation>
+    </message>
+    <message>
+        <source>Continue editing %1</source>
+        <translation>繼續編輯 %1</translation>
     </message>
 </context>
 <context>

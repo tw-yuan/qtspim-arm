@@ -1,0 +1,7 @@
+Exception occurred at PC=0x00400038
+  Arithmetic overflow
+Exception occurred at PC=0x0040003c
+Exception occurred at PC=0x00400040
+  Trap
+Exception occurred at PC=0x00400044
+  Bad address in data/stack read: 0x00000000

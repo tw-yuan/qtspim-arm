@@ -1,0 +1,5 @@
+# Golden files and test inputs are compared byte for byte: never convert
+# their line endings.
+golden/** -text
+cases/*.in -text
+cases/data/** -text

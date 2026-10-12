@@ -1,0 +1,5 @@
+Loaded: CPU/exceptions.s
+argc = 1
+argv[0] = "three"
+argv[argc] is NULL = 1
+environment entries = 0

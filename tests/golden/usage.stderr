@@ -1,0 +1,18 @@
+
+Unknown argument: -no-such-option (ignored)
+Usage: spim
+	-bare			Bare machine (no pseudo-ops, delayed branches and loads)
+	-asm			Extended machine (pseudo-ops, no delayed branches and loads) (default)
+	-delayed_branches	Execute delayed branches
+	-delayed_loads		Execute delayed loads
+	-exception		Load exception handler (default)
+	-noexception		Do not load exception handler
+	-exception_file <file>	Specify exception handler in place of default
+	-quiet			Do not print warnings
+	-noquiet		Print warnings (default)
+	-mapped_io		Enable memory-mapped IO
+	-nomapped_io		Do not enable memory-mapped IO (default)
+	-file <file> <args>	Assembly code file and arguments to program
+	-assemble		Write assembled code to <file>.out
+	-dump			Write user data and text segments into files
+	-full_dump		Write user and kernel data and text into files.

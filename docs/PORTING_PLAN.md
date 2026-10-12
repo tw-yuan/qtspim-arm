@@ -186,14 +186,14 @@
 | 3. Bundle ID | `net.yuan-tw.qtspim` |
 | 3. App 顯示名稱 | `QtSpim ARM` |
 | 3. 版本號 | release tag `v9.1.24-arm.N`；`CFBundleShortVersionString` = `9.1.24`；`CFBundleVersion` = 遞增的建置編號（1、2、3…）；命令列版 `spim` 的版本字串（`CPU/version.h`）不動 |
-| 4. 最低 macOS | 依 Qt 6.8 LTS 的需求（macOS 12） |
+| 4. 最低 macOS | macOS 13（Qt 6.11 的需求；原定 Qt 6.8 / macOS 12，見下方 Qt 版本） |
 | 5. 聯絡原作者 | 擁有者自行處理 |
 | 6. Repo 公開 | 盡快，`README.md` 標示非官方 fork 後即公開 |
 | 7. 編輯器、介面設計稿 | 尚未提交；第一版發布後才開始 |
 | 8. 介面技術路線 | Qt Widgets |
 | 9. 發布策略 | 先發布純移植版（階段 0–3＋簽章、CI、README） |
 | arm64 浮點差異 | 在 `CPU/run.cpp` 做最小修正，所有主機都產生 x86 的結果（無效運算的 NaN、超出範圍的浮點轉整數） |
-| Qt 版本 | 正式版用 Qt 6.8 LTS 的 Universal 版（官方安裝程式或 aqtinstall）；Homebrew 的 Qt 只用於 arm64 開發 |
+| Qt 版本 | 正式版用 **Qt 6.11** 的 Universal 版（官方安裝程式或 aqtinstall）；Homebrew 的 Qt 只用於 arm64 開發。原定 Qt 6.8 LTS，但開源版 6.8 最後一版 6.8.3 無法用 macOS 26 以後的 SDK 連結（AGL），且不再更新，擁有者於同日改為 Qt 6.11 |
 | 新檔案的版權行 | `Copyright (c) 2026, qtspim-arm contributors.` |
 | 說明視窗 | 把 Qt Assistant 打包進 app，說明檔路徑改成相對於 app 本身（不再寫死 `/Applications/QtSpim.app`） |
 | `CLAUDE.md`、本文件 | 提交進 repo（本文件原為 `TO_DO.md`） |

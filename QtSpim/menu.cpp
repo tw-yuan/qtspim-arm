@@ -123,7 +123,11 @@ void SpimView::file_SaveLogFile() {
   if (saveLogFileDialog->exec() == QDialog::Accepted) {
     if (!slf->SaveLineEdit->text().isNull()) {
       QFile file(slf->SaveLineEdit->text());
-      file.open(QIODevice::WriteOnly | QIODevice::Truncate);
+      if (!file.open(QIODevice::WriteOnly | QIODevice::Truncate)) {
+        QMessageBox::warning(this, tr("Save Log File"),
+                             tr("Cannot write %1.").arg(file.fileName()));
+        return;
+      }
       QTextStream outFile(&file);
 
       if (slf->RegsCheckBox->isChecked()) {

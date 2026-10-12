@@ -43,10 +43,10 @@ if(CMAKE_HOST_SYSTEM_NAME STREQUAL "Darwin" AND NOT DEFINED CMAKE_OSX_ARCHITECTU
       "macOS architectures to build (default: Universal Binary)")
 endif()
 
-# Minimum macOS version: that of Qt 6.8 LTS, the Qt used for releases.
+# Minimum macOS version: that of Qt 6.11, the Qt used for releases.
 if(CMAKE_HOST_SYSTEM_NAME STREQUAL "Darwin" AND NOT DEFINED CMAKE_OSX_DEPLOYMENT_TARGET
    AND NOT DEFINED ENV{MACOSX_DEPLOYMENT_TARGET})
-  set(CMAKE_OSX_DEPLOYMENT_TARGET "12.0" CACHE STRING "Minimum macOS version")
+  set(CMAKE_OSX_DEPLOYMENT_TARGET "13.0" CACHE STRING "Minimum macOS version")
 endif()
 
 project(QtSpim LANGUAGES CXX)

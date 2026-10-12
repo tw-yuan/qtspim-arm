@@ -38,10 +38,10 @@ cd spim && make && make test
 
 `make test` 會印出每個 torture test 的最後兩行，結果應為全部通過。
 
-CMake 建置（PR #2、#3，細節見 `docs/BUILDING.md`）：
+CMake 建置（細節見 `docs/BUILDING.md`）：
 
 ```bash
-cmake -B build -G Ninja -DCMAKE_PREFIX_PATH=<Universal 版 Qt 6>   # macOS 預設 arm64;x86_64
+cmake -B build -G Ninja -DCMAKE_PREFIX_PATH=<Universal 版 Qt 6.11>   # macOS 預設 arm64;x86_64，最低 macOS 13
 cmake --build build
 scripts/run-tests.sh build/spim     # 與 tests/golden/ 比對，有差異即失敗（或 ctest --test-dir build）
 lipo -info build/spim build/QtSpim.app/Contents/MacOS/QtSpim
@@ -49,7 +49,7 @@ lipo -info build/spim build/QtSpim.app/Contents/MacOS/QtSpim
 
 - Homebrew 的 Qt 只有本機架構，做不出 Universal 的 QtSpim。要用 Qt 官方安裝程式或 aqtinstall 的 Qt，否則就加 `-DCMAKE_OSX_ARCHITECTURES=arm64`。
 - 測試一律用 `env -i` 執行 spim（spim 會把環境變數複製到模擬堆疊上），而且不能用 `alarm()` 包裝（spim 用 `ITIMER_REAL` 驅動 CP0 計時器）。見 `tests/README.md`。
-- `fp_host_dependent` 在 arm64 上會失敗（NaN 位元、超出範圍的浮點轉整數），是待擁有者決定的已知差異，**不要改 golden**。
+- `fp_host_dependent`、`fp_host_edge` 記錄了會隨主機 CPU 而不同的浮點結果（NaN 位元、超出範圍的浮點轉整數）。`CPU/run.cpp` 已讓所有主機都產生 x86 的結果，所以在 arm64 上也必須通過；**不要改 golden**。
 
 參考實作：`brew install spim` 的 9.1.24 就是用 r764 編譯的，可拿來對照輸出（Apple Silicon 上是 arm64 版，`fp_host_dependent` 會不同）。
 
@@ -58,14 +58,15 @@ lipo -info build/spim build/QtSpim.app/Contents/MacOS/QtSpim
 1. **行為必須與原版一致。** 這是教學工具，學生作業由助教用原版 SPIM 評分。指令語意、syscall、例外處理、延遲槽、記憶體配置、輸出格式的任何改變都算 bug。
 2. **`CPU/` 只允許為了編譯通過所需的最小修改**，每一處都要在提交訊息中說明原因。不要重構、重新格式化或「順手改善」核心程式碼。
 3. **不要修改 golden 輸出讓測試通過。** 輸出和原版不一致時，找出原因並回報。
-4. **任何修改原始碼的 PR 都要跑測試並通過**，PR 說明要附上指令輸出。
+4. **任何修改原始碼的提交都要先跑 `scripts/run-tests.sh` 並全數通過**，提交訊息附上結果摘要。
 5. **Qt 6 遷移要真正改寫 API**（例如 `QRegExp` → `QRegularExpression`），不要用 `Qt5Compat` 模組湊合過去。改用 `QRegularExpression` 時要確認比對語意相同（完整比對要加錨點）。
 6. **授權**：保留所有原始版權聲明與 BSD 條文，不要刪改檔頭。新檔案加上 BSD 條文與新的版權行。不得以 James Larus 的名義替本專案背書或宣傳；README 要明確標示「非官方 fork」。
 7. **機密資料**：簽章憑證、Apple ID、App 專用密碼、notarytool 憑證絕不進 repo，也不能出現在日誌或 CI 輸出中。
 8. **git**：
-   - 不要改寫歷史，不要 force push 到 `main`
+   - 不要改寫歷史，不要 force push 到 `main`（除非擁有者明確要求）
    - 不要刪除或修改既有提交中的 `git-svn-id`
-   - 每項工作開分支並發 PR，一個 PR 只做一件事
+   - 這是個人專案：**直接在 `main` 上提交，不要開分支或 PR**（擁有者 2026-10-12 決定）；一個提交只做一件事
+   - 提交訊息**不要加 AI 署名**（`Co-Authored-By: Claude…`、`Claude-Session: …` 等）
 9. **不要把 repo 改成公開**，也不要推 release tag，這兩件事由擁有者決定。
 10. **第三方素材**（圖示、字型）必須是可隨開源軟體散布的授權，並在 README 註明來源。不要打包 Apple 的 SF 字型或 SF Symbols 圖檔。
 
@@ -73,7 +74,7 @@ lipo -info build/spim build/QtSpim.app/Contents/MacOS/QtSpim
 
 - C/C++ 遵循 repo 根目錄的 `.clang-format`（Google style、`SortIncludes: Never`）。只格式化你修改到的程式碼，不要整檔重排。
 - 新增的介面程式碼放在 `QtSpim/`，以 Qt Widgets 為主，除非擁有者同意，不要改用 Qt Quick/QML 或 SwiftUI。
-- 介面文字目前為英文，新增字串請包在 `tr()` 中以便日後翻譯。
+- 介面要有**繁體中文**（擁有者 2026-10-12 決定）：原始字串用英文並包在 `tr()` 中，同時更新 `translations/qtspim_zh_TW.ts`；預設跟隨系統語言。MIPS 術語維持英文，用語對照見 `docs/UI_DESIGN.md` 6.1 節。
 - `QtSpim/` 等從 SVN 匯入的檔案多為 CRLF 換行，修改時保持原樣（`git diff --stat` 應只顯示改到的行）。
 
 ## 介面與編輯器方向（階段 4、5）

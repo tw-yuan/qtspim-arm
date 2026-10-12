@@ -17,9 +17,11 @@ scripts/run-tests.sh --keep path/to/spim     # keep the actual outputs
 The script runs every test in `tests/manifest.txt` and compares the standard
 output, standard error and exit status with `tests/golden/<test>.stdout`,
 `.stderr` and `.status`. Any difference is printed as a unified diff, and the
-script exits with status 1. It needs only bash 3.2, `diff`, `cmp` and (for the
-per-test timeout, `SPIM_TEST_TIMEOUT`, default 60 s) `perl`, all of which
-macOS includes.
+script exits with status 1. It needs only bash 3.2, `diff`, `cmp` and `sleep`,
+which macOS includes. A test that runs longer than `SPIM_TEST_TIMEOUT` seconds
+(default 60) is killed by a separate watchdog process. Do not wrap spim in
+anything that uses `alarm()` or `setitimer()`: spim drives the simulated CP0
+timer with `ITIMER_REAL` and ignores `SIGALRM`.
 
 spim is run from the repository root with an **empty environment**
 (`env -i`). spim copies its environment onto the simulated stack, so `$sp` and

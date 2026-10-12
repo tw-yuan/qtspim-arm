@@ -93,16 +93,32 @@ fi
 
 # Run spim with an empty environment: spim copies the environment onto the
 # simulated stack, so it would otherwise change $sp and the stack contents.
-# perl's alarm() provides a portable timeout (macOS has no timeout(1)).
-have_perl=0
-command -v perl >/dev/null 2>&1 && have_perl=1
+#
+# The timeout is a separate watchdog process that kills spim.  It must not
+# use alarm() or setitimer() in the spim process (e.g. perl -e 'alarm ...;
+# exec ...'): spim drives the simulated CP0 timer with ITIMER_REAL and
+# ignores SIGALRM, so an inherited alarm would both fail to stop spim and
+# delay the simulated timer.
+#
+# Usage: run_spim INPUT STDOUT STDERR ARGS...
 run_spim() {
-  if [ "$have_perl" -eq 1 ]; then
-    perl -e 'alarm shift @ARGV; exec @ARGV or die "exec: $!\n"' \
-      "$timeout" env -i "$spim" "$@"
-  else
-    env -i "$spim" "$@"
-  fi
+  local input="$1" stdout="$2" stderr="$3" pid watchdog status
+  shift 3
+  env -i "$spim" "$@" <"$input" >"$stdout" 2>"$stderr" &
+  pid=$!
+  (
+    trap 'kill "$sleeper" 2>/dev/null; exit 0' TERM
+    sleep "$timeout" &
+    sleeper=$!
+    wait "$sleeper"
+    kill -KILL "$pid" 2>/dev/null
+  ) &
+  watchdog=$!
+  wait "$pid"
+  status=$?
+  kill -TERM "$watchdog" 2>/dev/null
+  wait "$watchdog" 2>/dev/null
+  return "$status"
 }
 
 trim() {
@@ -163,7 +179,8 @@ while IFS='|' read -r name input args || [ -n "$name" ]; do
 
   argv=()
   read -r -a argv <<<"$args"
-  run_spim ${argv[@]+"${argv[@]}"} <"$input" >"$out/$name.stdout" 2>"$out/$name.stderr"
+  run_spim "$input" "$out/$name.stdout" "$out/$name.stderr" \
+    ${argv[@]+"${argv[@]}"}
   echo "$?" >"$out/$name.status"
 
   if [ ! -f "$golden/$name.stdout" ] && [ ! -f "$golden/$name.stderr" ] &&
@@ -197,7 +214,7 @@ while IFS='|' read -r name input args || [ -n "$name" ]; do
     echo "ok   $name"
     passed=$((passed + 1))
   else
-    if [ "$(cat "$out/$name.status")" = "142" ]; then
+    if [ "$(cat "$out/$name.status")" = "137" ]; then
       echo "  (spim was killed after ${timeout}s; see SPIM_TEST_TIMEOUT)"
     fi
     failed=$((failed + 1))

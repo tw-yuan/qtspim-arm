@@ -31,6 +31,9 @@
    POSSIBILITY OF SUCH DAMAGE.
 */
 
+#ifndef REGTEXTEDIT_H
+#define REGTEXTEDIT_H
+
 #include <QObject>
 #include <QPlainTextEdit>
 
@@ -58,3 +61,5 @@ class regTextEdit : public QPlainTextEdit {
  public slots:
   void changeValue();
 };
+
+#endif  // REGTEXTEDIT_H

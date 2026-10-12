@@ -31,6 +31,9 @@
    POSSIBILITY OF SUCH DAMAGE.
 */
 
+#ifndef TEXTTEXTEDIT_H
+#define TEXTTEXTEDIT_H
+
 #include <QObject>
 #include <QTextEdit>
 
@@ -56,3 +59,5 @@ class textTextEdit : public QTextEdit {
   void clearBreakpoint();
   int pcFromPos(QTextCursor* cursor);
 };
+
+#endif  // TEXTTEXTEDIT_H

@@ -18,7 +18,7 @@ repository and have not been changed.
 | C++ compiler | C++17 | Xcode clang on macOS |
 | GNU Bison | 3.0 or later | macOS includes bison 2.3, which is too old |
 | flex | 2.5.35 or later | |
-| Qt | 6.2 or later | Core, Widgets, PrintSupport; the Qt tools (`qhelpgenerator`) for the help files |
+| Qt | 6.11 for releases; 6.2 or later builds | Core, Widgets, PrintSupport; the Qt tools (`qhelpgenerator`) for the help files |
 
 ## macOS
 
@@ -43,15 +43,21 @@ to `arm64;x86_64`. This has a catch for QtSpim:
   or from [aqtinstall](https://github.com/miurahr/aqtinstall) are Universal.
 
 ```bash
-# Example with aqtinstall (see its documentation); any Qt 6 LTS release will do.
-python3 -m pip install aqtinstall
-python3 -m aqt install-qt mac desktop 6.8.3 clang_64 --outputdir ~/Qt
+# Example with aqtinstall (see its documentation).
+python3 -m venv ~/venv-aqt && ~/venv-aqt/bin/pip install aqtinstall
+~/venv-aqt/bin/aqt install-qt mac desktop 6.11.3 clang_64 --outputdir ~/Qt
 
-cmake -B build -G Ninja -DCMAKE_PREFIX_PATH="$HOME/Qt/6.8.3/macos"
+cmake -B build -G Ninja -DCMAKE_PREFIX_PATH="$HOME/Qt/6.11.3/macos"
 cmake --build build
 scripts/run-tests.sh build/spim
 lipo -info build/spim "build/QtSpim ARM.app/Contents/MacOS/QtSpim ARM"
 ```
+
+**Qt 6.8.3 and older do not link with the macOS 26 SDK and later:** their
+`FindWrapOpenGL.cmake` adds `-framework AGL`, which these SDKs no longer
+contain (`ld: framework 'AGL' not found`). Use Qt 6.11. With an older Qt, adding
+`-DWrapOpenGL_AGL=$(xcrun --show-sdk-path)/System/Library/Frameworks/OpenGL.framework`
+to the `cmake` command works around it.
 
 `spim` uses no Qt, so it can always be built Universal:
 
@@ -70,9 +76,9 @@ cmake -B build -G Ninja -DCMAKE_OSX_ARCHITECTURES=arm64 \
 
 ### Minimum macOS version
 
-`CMAKE_OSX_DEPLOYMENT_TARGET` defaults to **12.0**, the minimum macOS of Qt 6.8
-LTS, the Qt used for releases (owner's decision; see
-`docs/PORTING_PLAN.md`). It must not be lower than the minimum macOS of the Qt
+`CMAKE_OSX_DEPLOYMENT_TARGET` defaults to **13.0**, the minimum macOS of Qt 6.11,
+the Qt used for releases (owner's decision; see `docs/PORTING_PLAN.md`). The
+Qt 6.11.3 frameworks are built with `minos 13.0`. It must not be lower than the minimum macOS of the Qt
 that is bundled. Homebrew bottles are built for the macOS version they are
 installed on, so an app that bundles Homebrew's Qt does not run on older macOS
 versions.
@@ -116,7 +122,7 @@ scripts/run-tests.sh build/spim
 | `SPIM_BUILD_QTSPIM` | `ON` | Build QtSpim (needs Qt 6) |
 | `SPIM_BUILD_HELP` | `ON` | Build the help files with `qhelpgenerator` |
 | `SPIM_EXCEPTION_HANDLER` | `<prefix>/share/spim/exceptions.s` | Default exception handler file compiled into `spim` |
-| `CMAKE_OSX_DEPLOYMENT_TARGET` | `12.0` on macOS | Minimum macOS version |
+| `CMAKE_OSX_DEPLOYMENT_TARGET` | `13.0` on macOS | Minimum macOS version |
 | `QTSPIM_BUILD_NUMBER` | `0` | `CFBundleVersion` and the N of release `v9.1.24-arm.N`; `0` is a development build |
 
 ## Tests
@@ -140,9 +146,9 @@ same simulator core.
 | Optimization | `-O` (`spim`), `-O2` (qmake release) | `-O3` (`Release`) |
 | Generated files | in the source directories | in `build/generated` |
 
-The `Release` build at `-O3` was checked with the regression tests (GCC 13 and
-clang 18 on x86_64: all pass; aarch64: see "Behaviour that depends on the host
-CPU" in `tests/README.md`).
+The `Release` build at `-O3` passes all regression tests with GCC 13 and clang 18
+on Linux (x86_64, and aarch64 under qemu-user) and with Apple clang 21 on macOS
+(arm64 natively, x86_64 under Rosetta 2).
 
 ## Tool versions used
 
@@ -161,20 +167,49 @@ CPU" in `tests/README.md`).
 
 ### macOS
 
-Not yet recorded: the development so far was done on Linux. On the build Mac,
-fill in this table with the output of:
-
-```bash
-sw_vers; xcodebuild -version; clang --version | head -1; cmake --version | head -1
-"$(brew --prefix bison)/bin/bison" --version | head -1; flex --version
-qmake6 -query QT_VERSION     # or the Qt version passed in CMAKE_PREFIX_PATH
-```
-
 | Tool | Version |
 |---|---|
-| macOS | |
-| Xcode / Apple clang | |
-| CMake | |
-| GNU Bison | |
-| flex | |
-| Qt | |
+| Machine | MacBook Air, Apple M3 |
+| macOS | 27.0.1 (26A434) |
+| Command Line Tools / Apple clang | 27.0 / Apple clang 21.0.0 (clang-2100.3.34.2), macOS SDK 27.0 |
+| Homebrew | 7.0.9 |
+| CMake | 4.4.4 |
+| Ninja | 1.13.2 |
+| GNU Bison | 3.8.2 (Homebrew; the system bison is 2.3) |
+| flex | 2.6.4 (Homebrew and system) |
+| Qt | 6.11.3, Universal, installed with aqtinstall 3.3.0 |
+| Rosetta 2 | for testing the x86_64 half |
+
+Regression tests on this machine: the Universal `spim` passes all 42 tests
+natively (arm64) and as an x86_64-only binary under Rosetta 2
+(`lipo -thin x86_64 -output spim-x86_64 build/spim`). The unmodified r764
+source built for x86_64 also passes all 42 under Rosetta 2; built natively for
+arm64 it fails only `fp_host_dependent` and `fp_host_edge`.
+
+## Compiler warnings
+
+| Platform | Warnings | |
+|---|---|---|
+| Linux, GCC 13 | `spim/spim.cpp`: unused `read()` result, `redo` clobbered by `longjmp` | in the original command-line program; kept |
+| Linux, clang 18 | none | |
+| macOS, Apple clang 21 | `CPU/parser.y:2913`, `CPU/parser.y:2933`, `CPU/scanner.l:722`: `sprintf` is deprecated | in the simulator core, which is only changed when needed to build; kept |
+
+QtSpim itself compiles without warnings with Qt 6.4 (Linux) and Qt 6.11
+(macOS).
+
+## A self-contained app for testing (unsigned)
+
+Until signed releases exist (stage 7), a Universal app that runs on other Macs
+can be made like this:
+
+```bash
+rm -rf dist && mkdir dist && cp -R "build/QtSpim ARM.app" dist/
+~/Qt/6.11.3/macos/bin/macdeployqt "dist/QtSpim ARM.app"   # copy Qt into the app
+codesign --force --deep --sign - "dist/QtSpim ARM.app"    # ad-hoc signature
+ditto -c -k --sequesterRsrc --keepParent "dist/QtSpim ARM.app" dist/QtSpim-ARM.zip
+```
+
+Without the ad-hoc signature after `macdeployqt`, macOS reports the app as
+damaged. A downloaded copy is blocked by Gatekeeper the first time: open it
+once, then choose Open Anyway in System Settings > Privacy & Security, or run
+`xattr -dr com.apple.quarantine "/Applications/QtSpim ARM.app"`.

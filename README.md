@@ -14,7 +14,9 @@ unchanged in [`README`](README).
 
 - A native macOS app for Apple Silicon and Intel (Universal Binary), built with Qt 6.
 - Signed with an Apple Developer ID and notarized, so it opens without Gatekeeper warnings.
-- Later: a built-in program editor and a modernized, Mac-style interface.
+- A built-in program editor and a modern, Mac-style interface for students, in
+  Traditional Chinese or English, with the original QtSpim windows one click
+  away.
 
 **The simulator must behave exactly like the original SPIM 9.1.24.** SPIM is a
 teaching tool, and assignments are often graded with the original. Any change
@@ -34,7 +36,20 @@ every difference from the original.
 | Identical floating-point results on Apple Silicon and Intel | done |
 | App identity (QtSpim ARM, `net.yuan-tw.qtspim`) | done |
 | Signing, notarization and DMG | planned |
-| Built-in editor, new interface | planned, after the first release |
+| Built-in editor, new interface ([design](docs/UI_DESIGN.md)), Traditional Chinese | done; the classic QtSpim interface is kept |
+
+## The interface
+
+QtSpim ARM opens in a new, single-window interface: a program editor with
+syntax highlighting, breakpoints in the margin and error messages explained in
+plain words; the console, memory and assembler problems below it; and the
+registers on the right, with the ones the last step changed highlighted. Run,
+Step and Continue use the same simulator as the original. The interface is in
+Traditional Chinese when the system is, and in English otherwise (Settings can
+change it).
+
+The original QtSpim windows are still there: click **Classic** in the toolbar,
+and **Switch to New Interface** to come back.
 
 ## Building from source
 
@@ -46,6 +61,13 @@ cmake -B build -G Ninja -DCMAKE_PREFIX_PATH=/path/to/Qt/6.11.3/macos   # a Unive
 cmake --build build
 scripts/run-tests.sh build/spim
 ```
+
+## Third-party material
+
+- Icons: [Lucide](https://lucide.dev) 1.55.0 (`lucide-static`), ISC License;
+  see [`QtSpim/icons/LICENSE`](QtSpim/icons/LICENSE). Apple's SF Symbols and SF
+  fonts are not included.
+- Qt is used under the GNU Lesser General Public License version 3.
 
 ## License
 

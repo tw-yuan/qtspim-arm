@@ -54,6 +54,29 @@ working like the original: the exception handler Reset button in Settings
 right-click a data word (the words are separated by non-breaking spaces), and
 the keys under which recent files are saved.
 
+## The new interface
+
+QtSpim ARM opens in a new interface ([`docs/UI_DESIGN.md`](docs/UI_DESIGN.md)).
+The original windows are still available as the classic interface
+(**Classic** in the toolbar), and behave as before. Both use the same
+simulator in the same way: the program is loaded from a file with
+`initialize_world()` and `read_assembly_file()` and run with `run_program()`.
+
+| | Original QtSpim 9.1.24 | New interface |
+|---|---|---|
+| Layout | separate register, text, data, message and console windows | one window: editor; console, memory and problems below; registers on the right |
+| Writing programs | in another editor, then File › Reinitialize and Load File | built-in editor; Run writes the editor's text to a temporary file and loads it |
+| Assembler errors | a message box per message | marked on the line, explained in plain words with spelling suggestions and listed under Problems with SPIM's own message; a program with errors runs only with **Run anyway** (the original ran it) |
+| Run errors (`run_error`, e.g. a jump to an address without an instruction) | a message box; OK lets the program go on | the program stops, as in the command-line `spim` (the classic interface keeps the box) |
+| Exception messages and other `error()` output while running | a message box and the messages window | printed in red in the console |
+| Stepping | one machine instruction | one machine instruction; the first Step runs the startup code up to `main`, and a step over code outside the program (the exception handler) finishes it, unless **Show kernel code** is on |
+| Breakpoints | on addresses, in the text window; a dialog when one is hit | on source lines, in the editor's margin; the status bar says where the program stopped |
+| Console input | each key goes to the program at once | a line, sent with Return; `read_char` and memory-mapped I/O still get each key at once |
+| Language | English | Traditional Chinese or English (the classic interface stays English) |
+| Appearance | follows the system | light, also when the system is dark |
+| Settings | `LarusStone` / `QtSpim` | the same file and keys, plus editor and display settings; `UI/Classic` remembers the interface |
+| Opening files | File › Load File (`*.a *.s *.asm`) | Open (`*.s *.as *.asm`), drag and drop, or from the Finder |
+
 ## Command-line `spim`
 
 | | Original 9.1.24 | QtSpim ARM |
@@ -67,10 +90,11 @@ the keys under which recent files are saved.
 |---|---|---|
 | Tests | six torture tests in `Tests/`; `tt.alu.bare.s` no longer assembles | the same plus 37 more test runs in `regression/`: 43 in all, comparing stdout, stderr and exit status with recordings from the original build (one, for the hang above, recorded with the fixed build), run by `scripts/run-tests.sh` |
 | Documentation | `README`, `Documentation/` | also `README.md`, `CHANGES.md`, `docs/BUILDING.md`, `docs/UI_DESIGN.md`, `regression/README.md` |
+| Examples | — | four short example programs in `QtSpim/examples/` (BSD license), opened from the welcome page |
 
 ## Not changed
 
 `PCSpim/`, `xspim/`, `Setup/`, `Tests/`, `Documentation/`, `spim/`,
 `CPU/exceptions.s`, the parser and scanner, and every file in `CPU/` other than
-`run.cpp` and `scanner.l`. The original `README`, `QtSpim/QtSpim.pro` and
-`QtSpim/macinfo.plist` are kept as they were.
+`run.cpp` and `scanner.l`. The original `README` and `QtSpim/macinfo.plist`
+are kept as they were; `QtSpim/QtSpim.pro` only lists the new sources.

@@ -8,7 +8,9 @@ The top-level `CMakeLists.txt` builds two programs:
 | `QtSpim` | Qt 6 interface; on macOS the app bundle `QtSpim ARM.app` |
 
 The old build files, `spim/Makefile` and `QtSpim/QtSpim.pro`, are still in the
-repository and have not been changed.
+repository. `spim/Makefile` has not been changed; `QtSpim.pro` lists the new
+interface's sources too, so it still builds QtSpim, but CMake is the build
+that is tested.
 
 ## Requirements
 
@@ -18,7 +20,7 @@ repository and have not been changed.
 | C++ compiler | C++17 | Xcode clang on macOS |
 | GNU Bison | 3.0 or later | macOS includes bison 2.3, which is too old |
 | flex | 2.5.35 or later | |
-| Qt | 6.11 for releases; 6.2 or later builds | Core, Widgets, PrintSupport; the Qt tools (`qhelpgenerator`) for the help files |
+| Qt | 6.11 for releases; 6.2 or later builds | Core, Gui, Svg, Widgets, PrintSupport, LinguistTools (`lrelease`, `lupdate`); the Qt tools (`qhelpgenerator`) for the help files |
 
 ## macOS
 
@@ -214,3 +216,18 @@ Without the ad-hoc signature after `macdeployqt`, macOS reports the app as
 damaged. A downloaded copy is blocked by Gatekeeper the first time: open it
 once, then choose Open Anyway in System Settings > Privacy & Security, or run
 `xattr -dr com.apple.quarantine "/Applications/QtSpim ARM.app"`.
+
+## Translations
+
+The interface is written in English in the sources (`tr()`), with a
+Traditional Chinese translation in `QtSpim/translations/qtspim_zh_TW.ts`. The
+build compiles it with `lrelease` and embeds it in the app. After changing
+interface strings, update the `.ts` file and translate the new entries (for
+example with Qt Linguist):
+
+```bash
+cmake --build build --target update_translations
+```
+
+The app follows the system language and can be switched in Settings. The
+classic interface (the original QtSpim windows) stays in English.

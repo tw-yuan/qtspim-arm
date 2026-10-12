@@ -15,7 +15,7 @@
 | 路徑 | 內容 | 修改原則 |
 |---|---|---|
 | `CPU/` | 模擬核心：指令、記憶體、syscall、`parser.y`、`scanner.l`、`exceptions.s` | **盡量不動**，見硬性規則 |
-| `QtSpim/` | Qt 圖形介面（目前為 qmake：`QtSpim.pro`） | 主要工作區 |
+| `QtSpim/` | Qt 圖形介面：新介面（`mainwindow.cpp`、`simulator.cpp` 等）與經典介面（原版 `spimview.cpp` 等，可互相切換）；`translations/` 為繁中翻譯 | 主要工作區 |
 | `spim/` | 命令列版，`Makefile` 含 `test` / `test_bare` | 用來產生行為基準 |
 | `Tests/` | 上游 torture tests（`tt.*.s`、`tt.in`） | 不要修改 |
 | `regression/` | 回歸測試：`manifest.txt`、`cases/`、`golden/`、說明 | golden 只能用未修改的原版 r764 錄製（例外見 `regression/README.md`） |
@@ -45,7 +45,8 @@ CMake 建置（細節見 `docs/BUILDING.md`）：
 cmake -B build -G Ninja -DCMAKE_PREFIX_PATH=<Universal 版 Qt 6.11>   # macOS 預設 arm64;x86_64，最低 macOS 13
 cmake --build build
 scripts/run-tests.sh build/spim     # 與 regression/golden/ 比對，有差異即失敗（或 ctest --test-dir build）
-lipo -info build/spim build/QtSpim.app/Contents/MacOS/QtSpim
+lipo -info build/spim "build/QtSpim ARM.app/Contents/MacOS/QtSpim ARM"
+cmake --build build --target update_translations   # 改了介面字串後更新 QtSpim/translations/*.ts
 ```
 
 - Homebrew 的 Qt 只有本機架構，做不出 Universal 的 QtSpim。要用 Qt 官方安裝程式或 aqtinstall 的 Qt，否則就加 `-DCMAKE_OSX_ARCHITECTURES=arm64`。

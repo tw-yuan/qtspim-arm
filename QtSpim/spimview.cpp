@@ -49,6 +49,10 @@ SpimView::SpimView(QWidget *parent)
   ui->setupUi(this);
   SpimConsole = new Console(0);
 
+  // Messages are written in black (and green), so keep a light background.
+  //
+  setWindowColors(ui->centralWidget, QColor("black"), QColor("white"));
+
   stdExceptionHandler = QString("<<SPIM Exception Handler>>");
 
   // Set style parameters for docking widgets
@@ -190,6 +194,18 @@ QString SpimView::windowFormattingStart(QFont font, QColor fontColor,
 }
 
 QString SpimView::windowFormattingEnd() { return "</span>"; }
+
+// The window contents set the font and background colors only behind the
+// text. Give the whole window the same colors, so it stays readable when the
+// system uses a dark appearance.
+//
+void SpimView::setWindowColors(QWidget *w, QColor fontColor,
+                               QColor backgroundColor) {
+  QPalette p = w->palette();
+  p.setColor(QPalette::Base, backgroundColor);
+  p.setColor(QPalette::Text, fontColor);
+  w->setPalette(p);
+}
 
 void SpimView::InitializeWorld() {
   if (st_loadExceptionHandler) {

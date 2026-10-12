@@ -150,6 +150,7 @@ class SpimView : public QMainWindow {
   QString windowFormattingStart(QFont font, QColor fontColor,
                                 QColor backgroundColor);
   QString windowFormattingEnd();
+  void setWindowColors(QWidget* w, QColor fontColor, QColor backgroundColor);
 
   // Integer registers window
   //

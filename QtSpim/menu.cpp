@@ -439,9 +439,10 @@ void SpimView::sim_Settings() {
   // exceptionHandlerLineEdit setText() SLOT
   QSignalMapper* exceptionHandlerResetButtonMapper = new QSignalMapper();
   // Connect exceptionHandlerResetButtonMapper to exceptionHandlerLineEdit
+  // Qt 6 renamed QSignalMapper::mapped(const QString&) to mappedString().
   QObject::connect(exceptionHandlerResetButtonMapper,
-                   SIGNAL(mapped(const QString&)), sd.exceptionHandlerLineEdit,
-                   SLOT(setText(const QString&)));
+                   SIGNAL(mappedString(const QString&)),
+                   sd.exceptionHandlerLineEdit, SLOT(setText(const QString&)));
   // Connect exceptionHandlerResetButton to exceptionHandlerResetButtonMapper
   QObject::connect(sd.exceptionHandlerResetButton, SIGNAL(clicked()),
                    exceptionHandlerResetButtonMapper, SLOT(map()));
@@ -724,7 +725,7 @@ void SpimView::help_ViewHelp() {
       0};
 
   int i;
-  for (i = 0; helpFile[i] != 0; i += 1) {
+  for (i = 0; !helpFile[i].isNull(); i += 1) {
     QFileInfo fi1(helpFile[i]);
     if (fi1.exists()) {
       args << QString("-collectionFile") << QString(helpFile[i]);
@@ -732,7 +733,7 @@ void SpimView::help_ViewHelp() {
     }
   }
 
-  if (helpFile[i] == 0) {
+  if (helpFile[i].isNull()) {
     QMessageBox msgBox;
     msgBox.setText("Cannot find QtSpim help file. Check installation.");
     msgBox.exec();

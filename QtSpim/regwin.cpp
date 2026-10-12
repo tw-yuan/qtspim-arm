@@ -35,7 +35,7 @@
 #include "ui_spimview.h"
 
 #include <QMessageBox>
-#include <QRegExp>
+#include <QRegularExpression>
 #include <QStringBuilder>
 #define QT_USE_FAST_CONCATENATION
 #include <QInputDialog>
@@ -50,6 +50,7 @@ void SpimView::DisplayIntRegisters() {
   regTextEdit* te =
       ui->IntRegDockWidget->findChild<regTextEdit*>("IntRegTextEdit");
   te->isIntRegs = true;
+  setWindowColors(te, st_regWinFontColor, st_regWinBackgroundColor);
   QString windowContents = windowFormattingStart(
       st_regWinFont, st_regWinFontColor, st_regWinBackgroundColor);
   int scrollPosition = te->verticalScrollBar()->value();
@@ -121,6 +122,7 @@ void SpimView::DisplayFPRegisters() {
   regTextEdit* te =
       ui->FPRegDockWidget->findChild<regTextEdit*>("FPRegTextEdit");
   te->isIntRegs = false;
+  setWindowColors(te, st_regWinFontColor, st_regWinBackgroundColor);
   QString windowContents = windowFormattingStart(
       st_regWinFont, st_regWinFontColor, st_regWinBackgroundColor);
   int scrollPosition = te->verticalScrollBar()->value();
@@ -436,10 +438,9 @@ QString regTextEdit::strAtPos(QString pattern) {
   mouseCursor.select(QTextCursor::LineUnderCursor);
   QString line = mouseCursor.selectedText();
 
-  QRegExp rx(pattern);
+  QRegularExpression rx(pattern);
 
-  rx.indexIn(line);
-  return rx.cap(1);
+  return rx.match(line).captured(1);
 }
 
 QString promptForNewValue(QString text, int* base) {
